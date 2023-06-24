@@ -14803,11 +14803,13 @@
 			skycon: this.weather.attributes.hourly_skycon[i].value,
 			temperature: Math.round(this.weather.attributes.hourly_temperature[i].value),
 			datetime: this.weather.attributes.hourly_precipitation[i].datetime.substr(0, 16).replace('T', ' '), // 转换时间格式
+			precipitation: this.weather.attributes.hourly_precipitation[i].value,
 			probable_precipitation: Math.round(this.weather.attributes.hourly_precipitation[i].probability).toString()
 		  };
 		  hourly_forecast.push(hourly_forecastItem);
 		}
 		this.hourly_forecast = hourly_forecast;
+		//console.log(hourly_forecast);
 	  }
 	
       this.iconSize = this.config.icons_size ? this.config.icons_size : 25;
@@ -15095,7 +15097,7 @@
     }
 	
 	drawCharthourly({config, language, weather, hourly_forecast, forecastItems} = this) {
-	  console.log(hourly_forecast)
+	  //console.log(hourly_forecast)
       if (!weather || !weather.attributes || !hourly_forecast) {
         return [];
       }
@@ -15104,10 +15106,12 @@
       }	
       var tempHiColor = config.temp1_color ? config.temp1_color : 'rgba(230, 100, 100, 1.0)';
       var tempLoColor = config.temp2_color ? config.temp2_color : 'rgba(68, 115, 158, 1.0)';
+	  var precipColor = config.precip_color ? config.precip_color : 'rgba(132, 209, 253, 0.5)';  
       var popColor = config.pop_color ? config.pop_color : 'rgba(230, 230, 230, 0.5)';
       var tempUnit = this._hass.config.unit_system.temperature;
       var lengthUnit = this._hass.config.unit_system.length;
-      var popUnit = lengthUnit === 'km' ? this.ll('units')['mm'] : this.ll('units')['in'];
+	  var precipUnit = lengthUnit === 'km' ? this.ll('units')['mm'] : this.ll('units')['in'];
+      var popUnit = '%';
       var forecasthourly = hourly_forecast.slice(0, forecastItems);
       if ((new Date(forecasthourly[1].datetime) - new Date(forecasthourly[0].datetime)) < 864e5)
         var mode = 'hourly';
@@ -15117,6 +15121,7 @@
       var dateTime = [];
       var tempHigh = [];
 	  var tempLow = [];
+	  var precip = [];
       var pop = [];
       for (i = 0; i < forecasthourly.length; i++) {
         var d = forecasthourly[i];
@@ -15125,8 +15130,11 @@
         if (typeof d.templow !== 'undefined') {
           tempLow.push(d.templow);
         }
+		precip.push(d.precipitation);
         pop.push(d.probable_precipitation);
       }
+	  //console.log(precip);
+	  //console.log(pop);
       var style = getComputedStyle(document.body);
       var backgroundColor = style.getPropertyValue('--card-background-color');
       var textColor = style.getPropertyValue('--primary-text-color');
@@ -15162,10 +15170,18 @@
             backgroundColor: tempLoColor,
           },
           {
+            label: this.ll('precip'),
+            type: 'bar',
+            data: precip,
+            yAxisID: 'PrecipAxis',
+            borderColor: precipColor,
+            backgroundColor: precipColor,
+          },
+          {
             label: this.ll('pop'),
             type: 'bar',
             data: pop,
-            yAxisID: 'PrecipAxis',
+            yAxisID: 'PopAxis',
             borderColor: popColor,
             backgroundColor: popColor,
             barPercentage: 1.0,
@@ -15175,7 +15191,10 @@
                 return context.dataset.data[context.dataIndex] > 0 ? 'auto' : false;
               },
               formatter: function(value, context) {
-                return Math.round(context.dataset.data[context.dataIndex]) + ' ' + '%';
+				if (context.dataset.data[context.dataIndex] > 9) {
+                  return Math.round(context.dataset.data[context.dataIndex]) + ' ' + precipUnit;
+                }
+                return Number(context.dataset.data[context.dataIndex]).toFixed(1) + ' ' + precipUnit;
               },
               align: 'top',
               anchor: 'start',
@@ -15228,6 +15247,18 @@
               }
             },
             PrecipAxis: {
+              position: 'left',
+              suggestedMax: 50,
+              grid: {
+                display: false,
+                drawBorder: false,
+                drawTicks: false,
+              },
+              ticks: {
+                display: false,
+              }
+            },
+            PopAxis: {
               position: 'right',
               suggestedMax: 100,
               grid: {
@@ -15256,7 +15287,16 @@
                 lineHeight: 0.6,
               },
               formatter: function(value, context) {
-                return context.dataset.data[context.dataIndex] + '°';
+				if (context.datasetIndex == 3) {
+                    return context.dataset.data[context.dataIndex] + popUnit;
+                  }
+				if (context.datasetIndex == 2) {
+					if (Number(context.dataset.data[context.dataIndex]) < 10){
+						return Math.round(context.dataset.data[context.dataIndex]*10)/10
+					}
+                    return Math.round(context.dataset.data[context.dataIndex]);  // + precipUnit
+                  }
+                return context.dataset.data[context.dataIndex] + tempUnit;
               }
             },
             tooltip: {
@@ -15276,8 +15316,11 @@
                 label: function(context) {
                   var label = context.dataset.label;
                   var value = context.formattedValue;
-                  if (context.datasetIndex == 2) {
-                    return label + ': ' + value + ' ' + '%';
+                  if (context.datasetIndex == 3) {
+                    return label + ': ' + value + ' ' + popUnit;
+                  }
+				  if (context.datasetIndex == 2) {
+                    return label + ': ' + value + ' ' + precipUnit;
                   }
                   return label + ': ' + value + ' ' + tempUnit;
                 }
@@ -15327,6 +15370,7 @@
       var dateTime = [];
       var tempHigh = [];
 	  var tempLow = [];
+	  var precip = [];
       var pop = [];
       for (i = 0; i < forecasthourly.length; i++) {
         var d = forecasthourly[i];
@@ -15335,13 +15379,15 @@
         if (typeof d.templow !== 'undefined') {
           tempLow.push(d.templow);
         }
+        precip.push(d.precipitation);
         pop.push(d.probable_precipitation);
       }
       if (forecasthourlyChart) {
         forecasthourlyChart.data.labels = dateTime;
         forecasthourlyChart.data.datasets[0].data = tempHigh;
 		forecasthourlyChart.data.datasets[1].data = tempLow;
-        forecasthourlyChart.data.datasets[2].data = pop;
+		forecasthourlyChart.data.datasets[2].data = precip;
+        forecasthourlyChart.data.datasets[3].data = pop;
         forecasthourlyChart.update();
       }
     }
