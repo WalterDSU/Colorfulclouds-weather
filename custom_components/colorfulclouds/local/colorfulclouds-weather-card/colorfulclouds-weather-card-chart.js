@@ -14981,9 +14981,9 @@
               },
               formatter: function(value, context) {
                 if (context.dataset.data[context.dataIndex] > 9) {
-                  return Math.round(context.dataset.data[context.dataIndex]) + ' ' + precipUnit;
+                  return Math.round(context.dataset.data[context.dataIndex]); // + ' ' + precipUnit;
                 }
-                return context.dataset.data[context.dataIndex].toFixed(1) + ' ' + precipUnit;
+                return context.dataset.data[context.dataIndex].toFixed(1); // + ' ' + precipUnit;
               },
               align: 'top',
               anchor: 'start',
@@ -15064,7 +15064,7 @@
                 lineHeight: 0.6,
               },
               formatter: function(value, context) {
-                return context.dataset.data[context.dataIndex] + '°';
+                return context.dataset.data[context.dataIndex] + tempUnit;
               }
             },
             tooltip: {
@@ -15176,14 +15176,6 @@
             yAxisID: 'PrecipAxis',
             borderColor: precipColor,
             backgroundColor: precipColor,
-          },
-          {
-            label: this.ll('pop'),
-            type: 'bar',
-            data: pop,
-            yAxisID: 'PopAxis',
-            borderColor: popColor,
-            backgroundColor: popColor,
             barPercentage: 1.0,
             categoryPercentage: 1.0,
             datalabels: {
@@ -15192,9 +15184,33 @@
               },
               formatter: function(value, context) {
 				if (context.dataset.data[context.dataIndex] > 9) {
-                  return Math.round(context.dataset.data[context.dataIndex]) + ' ' + precipUnit;
+                  return Math.round(context.dataset.data[context.dataIndex]); // + ' ' + precipUnit;
                 }
-                return Number(context.dataset.data[context.dataIndex]).toFixed(1) + ' ' + precipUnit;
+                return Number(context.dataset.data[context.dataIndex]).toFixed(1); // + ' ' + precipUnit;
+              },
+              align: 'top',
+              anchor: 'start',
+              offset: -8,
+            }
+          },
+          {
+            label: this.ll('pop'),
+            type: 'bar',
+            data: pop,
+            yAxisID: 'PopAxis',
+            borderColor: popColor,
+            backgroundColor: popColor,
+			barPercentage: 1.0,
+            categoryPercentage: 1.0,
+            datalabels: {
+              display: function(context) {
+                return false;
+              },
+              formatter: function(value, context) {
+				if (context.dataset.data[context.dataIndex] > 9) {
+                  return Math.round(context.dataset.data[context.dataIndex]); // + ' ' + popUnit;
+                }
+                return Number(context.dataset.data[context.dataIndex]).toFixed(1); // + ' ' + popUnit;
               },
               align: 'top',
               anchor: 'start',
