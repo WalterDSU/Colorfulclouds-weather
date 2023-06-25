@@ -15106,7 +15106,7 @@
       }	
       var tempHiColor = config.temp1_color ? config.temp1_color : 'rgba(230, 100, 100, 1.0)';
       var tempLoColor = config.temp2_color ? config.temp2_color : 'rgba(68, 115, 158, 1.0)';
-	  var precipColor = config.precip_color ? config.precip_color : 'rgba(132, 209, 253, 0.5)';  
+	  var precipColor = config.precip_color ? config.precip_color : 'rgba(132, 209, 253, 1.0)';  
       var popColor = config.pop_color ? config.pop_color : 'rgba(230, 230, 230, 0.5)';
       var tempUnit = this._hass.config.unit_system.temperature;
       var lengthUnit = this._hass.config.unit_system.length;
@@ -15248,7 +15248,7 @@
             },
             PrecipAxis: {
               position: 'left',
-              suggestedMax: 50,
+              suggestedMax: 20,
               grid: {
                 display: false,
                 drawBorder: false,
@@ -15282,21 +15282,22 @@
               borderWidth: 1.5,
               padding: 4,
               font: {
-                size: 10,
+                size: 8,
                 weight: 'bold',
                 lineHeight: 0.6,
               },
               formatter: function(value, context) {
-				if (context.datasetIndex == 3) {
-                    return context.dataset.data[context.dataIndex] + popUnit;
-                  }
+				
 				if (context.datasetIndex == 2) {
 					if (Number(context.dataset.data[context.dataIndex]) < 10){
 						return Math.round(context.dataset.data[context.dataIndex]*10)/10
 					}
                     return Math.round(context.dataset.data[context.dataIndex]);  // + precipUnit
                   }
-                return context.dataset.data[context.dataIndex] + tempUnit;
+				if (context.datasetIndex == 3) {
+                    return // context.dataset.data[context.dataIndex] + popUnit;
+                  }
+                return context.dataset.data[context.dataIndex]; // + tempUnit;
               }
             },
             tooltip: {
