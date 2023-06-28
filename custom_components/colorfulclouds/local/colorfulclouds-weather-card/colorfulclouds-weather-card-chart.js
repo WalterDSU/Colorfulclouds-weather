@@ -14994,7 +14994,7 @@
           maintainAspectRatio: false,
           layout: {
             padding: {
-              bottom: 10,
+              bottom: 0,
             }
           },
           scales: {
@@ -15023,8 +15023,8 @@
             TempAxis: {
               position: 'left',
               beginAtZero: false,
-              suggestedMin: Math.min(...tempHigh, ...tempLow) - 2,
-              suggestedMax: Math.max(...tempHigh, ...tempLow) + 1,
+              suggestedMin: Math.min(...tempHigh, ...tempLow) - 5,
+              suggestedMax: Math.max(...tempHigh, ...tempLow) + 3,
               grid: {
                 display: false,
                 drawBorder: false,
@@ -15251,7 +15251,7 @@
               position: 'left',
               beginAtZero: false,
               suggestedMin: Math.min(...tempHigh, ...tempLow) - 2,
-              suggestedMax: Math.max(...tempHigh, ...tempLow) + 1,
+              suggestedMax: Math.max(...tempHigh, ...tempLow) + 3,
               grid: {
                 display: false,
                 drawBorder: false,
