@@ -63,7 +63,6 @@ show_attributes: true
 show_hourly_forecast: true
 show_daily_forecast: true
 show_alarm: true
-show_main: true
 ```
   
 ## 安装配置
@@ -75,4 +74,6 @@ show_main: true
 3、添加卡片——自定义：彩云天气 ，如果ui界面配置没显示，先改成代码编辑器，修改一下彩云天气的实体名，再改回界面编辑。
 
 ![1](https://github.com/dscao/Colorfulclouds-weather/assets/16587914/0c88d311-80b6-40bf-9b82-6ee8aea296b3)
+
+![1](https://github.com/dscao/Colorfulclouds-weather/assets/16587914/751d72d4-8ec4-440e-84be-494334b401e4)
 
