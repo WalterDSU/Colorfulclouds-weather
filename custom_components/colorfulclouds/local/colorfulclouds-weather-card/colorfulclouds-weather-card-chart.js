@@ -14753,7 +14753,6 @@
 		"show_hourly_forecast": true,
 		"show_daily_forecast": true,
 		"show_alarm": true,
-        "show_main": true
       };
     }
 
@@ -15000,7 +14999,7 @@
           },
           scales: {
             DateTimeAxis: {
-              position: 'top',
+              position: 'bottom',
               grid: {
                 drawBorder: false,
                 drawTicks: false,
@@ -15008,7 +15007,7 @@
               },
               ticks: {
                 maxRotation: 0,
-                padding: 8,
+                padding: 0,
                 callback: function(value, index, values) {
                   var datetime = this.getLabelForValue(value);				  
                   var weekday = this._today(datetime, language);		
@@ -15017,15 +15016,15 @@
                   if (mode == 'hourly') {
                     return time;
                   }
-                  return weekday;
+                  return '';
                 }
               }
             },
             TempAxis: {
               position: 'left',
               beginAtZero: false,
-              suggestedMin: Math.min(...tempHigh, ...tempLow) - 5,
-              suggestedMax: Math.max(...tempHigh, ...tempLow) + 3,
+              suggestedMin: Math.min(...tempHigh, ...tempLow) - 2,
+              suggestedMax: Math.max(...tempHigh, ...tempLow) + 1,
               grid: {
                 display: false,
                 drawBorder: false,
@@ -15251,8 +15250,8 @@
             TempAxis: {
               position: 'left',
               beginAtZero: false,
-              suggestedMin: Math.min(...tempHigh, ...tempLow) - 5,
-              suggestedMax: Math.max(...tempHigh, ...tempLow) + 3,
+              suggestedMin: Math.min(...tempHigh, ...tempLow) - 2,
+              suggestedMax: Math.max(...tempHigh, ...tempLow) + 1,
               grid: {
                 display: false,
                 drawBorder: false,
@@ -15408,7 +15407,21 @@
         forecasthourlyChart.update();
       }
     }
-	
+	_today(date,lang){
+		let retext = new Date(date).toLocaleDateString(
+								lang,
+								{
+								  weekday: "short"
+								}
+							  )
+		let inDate = new Date(date)
+		let nowDate = new Date()
+
+		if(inDate.getDate() === nowDate.getDate()){
+		  retext =  this.ll('today',lang) 
+		}
+		return retext
+	}
 
     render({config, _hass, weather, forecastItems} = this) {
       if (!config || !_hass) {
@@ -15501,17 +15514,75 @@
 		  ${this.renderKeypoint()}
           ${this.renderAttributes()}		  
 		  ${config.daily_forecast == false ? ``: p`
-		  <hr>
+		  <div class="divider"></div>
+		  <div class="conditions">
+            ${forecast.map((item, index) => {
+				if (index === 0) {
+					
+					return p`
+              <i class="textdefault daybackground day1" style="font-style: normal;">${this._today(item.datetime, this.language)}</i>
+					`
+				} else {					
+					return p`
+              <i class="textdefault daybackground day" style="font-style: normal;">${this._today(item.datetime, this.language)}</i>
+					`
+				}
+			})
+			}
+          </div>
+		  <div class="conditions">
+            ${forecast.map((item, index) => {
+				if (index === 0) {
+					
+					return p`
+              <i class="textdefault daybackground day1" style="font-style: normal; font-size: 10px;">${new Date(item.datetime).toLocaleDateString(this.language,{month: "2-digit",day: "2-digit"})}</i>
+					`
+				} else {					
+					return p`
+              <i class="textdefault daybackground day" style="font-style: normal; font-size: 10px;">${new Date(item.datetime).toLocaleDateString(this.language,{month: "2-digit",day: "2-digit"})}</i>
+					`
+				}
+			})
+			}
+          </div>
+		  
+		  <div class="conditions">
+            ${forecast.map((item, index) => {				
+				if (index === 0) {					
+					return p`					
+					<i class="textdefault daybackground day1">${skycon2cn[item.skycon]}</i>            
+					`
+				} else {					
+					return p`					
+					<i class="textdefault daybackground day">${skycon2cn[item.skycon]}</i>
+            		`
+				}
+			})
+			}
+          </div>
+		  
+		  <div class="conditions">
+            ${forecast.map((item, index) => {				
+				if (index === 0) {					
+					return p`					
+					<i class="icon day1" style="background: none, url(${iconUrl}${item.skycon}.svg) no-repeat; background-size: contain;" title="${skycon2cn[item.skycon]}"></i>
+            		`
+				} else {					
+					return p`
+					<i class="icon day" style="background: none, url(${iconUrl}${item.skycon}.svg) no-repeat; background-size: contain;" title="${skycon2cn[item.skycon]}"></i>
+            		`
+				}
+			})
+			}
+          </div>
+		  
           <div class="chart-container">
             <canvas id="forecastChart"></canvas>
-          </div>  
-		  <div class="conditions">
-            ${forecast.map((item) => p`
-            <i class="icon" style="background: none, url(${iconUrl}${item.skycon}.svg) no-repeat; background-size: contain;" title="${skycon2cn[item.skycon]}"></i>
-            `)}
-          </div>`}
+          </div>
+		  
+		  `}
 		  ${config.hourly_forecast == false ? ``: p`
-		  <hr>
+		  <div class="divider"></div>
 		  ${this.hourly_forecast ? p`
 		  <div class="chart-container">
             <canvas id="forecasthourlyChart"></canvas>
@@ -15527,8 +15598,6 @@
     }
 
     renderMain({config, sun, weather, temperature} = this) {
-      if (config.show_main == false)
-        return p``;
       return p`
 	  <style>
         ha-icon {
@@ -15591,6 +15660,30 @@
         .main sup {
           font-size: 24px;
         }
+		.day {
+          flex: 1;
+          display: block;
+          text-align: center;
+          color: var(--primary-text-color);          
+		  border-right: 0.1em solid var(--divider-color);
+          line-height: 2;
+          box-sizing: border-box;
+        }
+		.day1 {
+          flex: 1;
+          display: block;
+          text-align: center;
+          color: var(--primary-text-color);          
+		  border-left: 0.1em solid var(--divider-color);
+		  border-right: 0.1em solid var(--divider-color);
+          line-height: 2;
+          box-sizing: border-box;
+        }
+		.divider {
+			height: 5px; 
+			padding 2px; 
+			border-bottom: thin solid var(--divider-color);
+		}
         .suggestion {
           cursor: pointer;
           display: flex;
@@ -15618,7 +15711,7 @@
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin: 0px 3px 0px 3px;
+          margin: 0px 1% 0px 1%;
         }
         .aqi,
         .alarm {
@@ -15656,7 +15749,9 @@
           height: 2em;
           left: 0em;
         }
-
+        .dayname {
+          text-transform: uppercase;
+        }
         .icon {
           width: 50px;
           height: 50px;
@@ -15714,7 +15809,7 @@
 			<span> 紫外：${this.getSuggestion("ultraviolet")}</span><br>
 			<span> 舒适：${this.getSuggestion("comfort")}</span><br>
 			<span> 感冒：${this.getSuggestion("coldRisk")}</span><br>
-			<span> 洗车：${this.getSuggestion("carWashing")}</span><br>	
+			<span> 洗车：${this.getSuggestion("carWashing")}</span><br>
 		  </div>
 		</div>
 		`}
@@ -15752,17 +15847,8 @@
 			</ul>
 		  </div>
 		`;
-	}
-	
-	renderAlarm() {
-		if (weather.attributes.forecast_alert.content==[])
-			return p``;
-		  return p`
-		    <div class="alarm">
-			  天气预警
-			</div>
-		`;
-	}
+	}	
+
 
     renderAttributes({config, weather, humidity, pressure, windSpeed, windDirection} = this) {
       if (this.unitSpeed === 'm/s') {
