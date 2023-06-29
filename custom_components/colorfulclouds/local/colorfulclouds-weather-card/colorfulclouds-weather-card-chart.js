@@ -15564,13 +15564,13 @@
 		  <div class="conditions">
             ${forecast.map((item, index) => {				
 				if (index === 0) {					
-					return p`					
-					<i class="icon day1" style="background: none, url(${iconUrl}${item.skycon}.svg) no-repeat; background-size: contain;" title="${skycon2cn[item.skycon]}"></i>
-            		`
+					return p`
+					<i class="icon day1" style="background: none, url(${iconUrl}${item.skycon}.svg) no-repeat; background-size: contain; background-position: center center;" title="${skycon2cn[item.skycon]}"></i>
+					`
 				} else {					
 					return p`
-					<i class="icon day" style="background: none, url(${iconUrl}${item.skycon}.svg) no-repeat; background-size: contain;" title="${skycon2cn[item.skycon]}"></i>
-            		`
+					<i class="icon day" style="background: none, url(${iconUrl}${item.skycon}.svg) no-repeat; background-size: contain; background-position: center center;" title="${skycon2cn[item.skycon]}"></i>
+					`
 				}
 			})
 			}
@@ -15711,7 +15711,7 @@
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin: 0px 1% 0px 1%;
+          margin: 0px 4.5px 0px 4.5px;
         }
         .aqi,
         .alarm {
@@ -15753,8 +15753,8 @@
           text-transform: uppercase;
         }
         .icon {
-          width: 50px;
-          height: 50px;
+          width: 100%;
+          height: 40px;
           display: inline-block;
           vertical-align: middle;
           background-size: contain;
