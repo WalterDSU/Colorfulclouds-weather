@@ -59,10 +59,19 @@
 ```yaml
 type: custom:colorfulclouds_weather-chart-card
 entity: weather.wo_de_jia
+title: ''
+name: ''
 show_attributes: true
 show_hourly_forecast: true
 show_daily_forecast: true
-show_alarm: true
+show_daily_chart: true
+show_daily_date: true
+show_condition_text: true
+show_keypoint: true
+show_warning: true
+show_warningtext: false
+show_wind: false
+show_daily_temperature: false
 ```
   
 ## 安装配置
