@@ -131,19 +131,19 @@ class MoreInfoWeather extends LitElement {
 	  ];
 	  this.weatherIcons = {
 		"clear-night": "hass:weather-night",
-		cloudy: "hass:weather-cloudy",
-		exceptional: "hass:alert-circle-outline",
-		fog: "hass:weather-fog",
-		hail: "hass:weather-hail",
-		lightning: "hass:weather-lightning",
+		"cloudy": "hass:weather-cloudy",
+		"exceptional": "hass:alert-circle-outline",
+		"fog": "hass:weather-fog",
+		"hail": "hass:weather-hail",
+		"lightning": "hass:weather-lightning",
 		"lightning-rainy": "hass:weather-lightning-rainy",
-		partlycloudy: "hass:weather-partly-cloudy",
-		pouring: "hass:weather-pouring",
-		rainy: "hass:weather-rainy",
-		snowy: "hass:weather-snowy",
+		"partlycloudy": "hass:weather-partly-cloudy",
+		"pouring": "hass:weather-pouring",
+		"rainy": "hass:weather-rainy",
+		"snowy": "hass:weather-snowy",
 		"snowy-rainy": "hass:weather-snowy-rainy",
-		sunny: "hass:weather-sunny",
-		windy: "hass:weather-windy",
+		"sunny": "hass:weather-sunny",
+		"windy": "hass:weather-windy",
 		"windy-variant": "hass:weather-windy-variant"
 	  };
 	}
@@ -304,6 +304,18 @@ class MoreInfoWeather extends LitElement {
 			  </div>
 			  <div>${this.stateObj.attributes.visibility} ${this.stateObj.attributes.visibility_unit}</div>
 			</div>
+		  ` : ''}
+		  ${this.stateObj.attributes.forecast_alert.content ? html`
+			<div class="section">气象预警:</div>
+			${this.stateObj.attributes.forecast_alert.content.map(
+				(item) => html`
+				  <div class="suggestion_brf">
+					<div>-&nbsp;&nbsp;${item.title}</div>
+					<div>${item.status}</div>
+				  </div>
+			  <div class="suggestion_txt">${item.description}</div>
+				`,
+			  )}	
 		  ` : ''}
 		  ${this.stateObj.attributes.suggestion ? html`
 			<div class="section">生活指数:</div>

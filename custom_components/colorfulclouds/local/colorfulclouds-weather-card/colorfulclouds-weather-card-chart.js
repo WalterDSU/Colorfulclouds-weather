@@ -49,7 +49,8 @@
 		"01":"blue",
 		"02":"yellow",
 		"03":"orange",
-		"04":"red"
+		"04":"red",
+		"05":"black"
 	}
 
   const locale = {
@@ -14747,12 +14748,19 @@
     static getStubConfig() {
       return {
 		"entity": "weather.wo_de_jia",
-		"name": "",
-		"icon": "",
+		"title": '',
+		"name": '',
 		"show_attributes": true,
 		"show_hourly_forecast": true,
 		"show_daily_forecast": true,
-		"show_alarm": true,
+		"show_daily_chart": true,
+		"show_daily_date": true,
+		"show_condition_text": true,
+		"show_keypoint": true,			
+		"show_warning": true,
+		"show_warningtext": false,
+		"show_wind": false,			
+		"show_daily_temperature": false
       };
     }
 
@@ -15512,8 +15520,9 @@
         <div class="card">
           ${this.renderMain()}
 		  ${this.renderKeypoint()}
+		  ${this.renderWarning()}
           ${this.renderAttributes()}		  
-		  ${config.daily_forecast == false ? ``: p`
+		  ${config.show_daily_forecast == false ? ``: p`
 		  <div class="divider"></div>
 		  <div class="conditions">
             ${forecast.map((item, index) => {
@@ -15530,10 +15539,11 @@
 			})
 			}
           </div>
+		  
+		  ${config.show_daily_date == false ? ``: p`
 		  <div class="conditions">
             ${forecast.map((item, index) => {
-				if (index === 0) {
-					
+				if (index === 0) {					
 					return p`
               <i class="textdefault daybackground day1" style="font-style: normal; font-size: 10px;">${new Date(item.datetime).toLocaleDateString(this.language,{month: "2-digit",day: "2-digit"})}</i>
 					`
@@ -15544,8 +15554,9 @@
 				}
 			})
 			}
-          </div>
+          </div>`}
 		  
+		  ${config.show_condition_text == false ? ``: p`
 		  <div class="conditions">
             ${forecast.map((item, index) => {				
 				if (index === 0) {					
@@ -15559,7 +15570,7 @@
 				}
 			})
 			}
-          </div>
+          </div>`}
 		  
 		  <div class="conditions">
             ${forecast.map((item, index) => {				
@@ -15575,13 +15586,44 @@
 			})
 			}
           </div>
+		  ${config.show_wind == true ? p`
+          <div class="conditions">
+            ${forecast.map((item, index) => {				
+				if (index === 0) {					
+					return p`
+              <i class="textdefault daybackground day1"><ha-icon icon="hass:${this.getWindDirIcon(item.wind_bearing)}"></ha-icon></i>
+					`
+				} else {					
+					return p`
+              <i class="textdefault daybackground day"><ha-icon icon="hass:${this.getWindDirIcon(item.wind_bearing)}"></ha-icon></i>
+					`
+				}
+			})
+			}
+          </div>
 		  
-          <div class="chart-container">
+		  <div class="conditions">
+            ${forecast.map((item, index) => {				
+				if (index === 0) {					
+					return p`
+              <i class="textdefault daybackground day1">${item.windscale}级</i>
+					`
+				} else {					
+					return p`
+              <i class="textdefault daybackground day">${item.windscale}级</i>
+					`
+				}
+			})
+			}
+          </div>`:''}
+		  
+		  
+          <div class="chart-container" style="display:${config.show_daily_chart == false ? 'none':'block'}">
             <canvas id="forecastChart"></canvas>
           </div>
 		  
 		  `}
-		  ${config.hourly_forecast == false ? ``: p`
+		  ${config.show_hourly_forecast == false ? ``: p`
 		  <div class="divider"></div>
 		  ${this.hourly_forecast ? p`
 		  <div class="chart-container">
@@ -15771,7 +15813,7 @@
                 <div class = "aqi ${this.aqiLevel(weather.attributes.aqi)}">${this.roundNumber(weather.attributes.aqi)}</div>
               ` : ''}
             </div>
-            <div class="title">${config.name}</div>
+            <div class="title">${config.name || weather.attributes.friendly_name}</div>
           </div>
           <div class="time">
             <ha-icon icon="mdi:update"></ha-icon>
@@ -15819,36 +15861,59 @@
     }
 	
 	renderKeypoint({config, weather} = this) {
-		if (weather.attributes.forecast_keypoint=="")
+		if (config.show_keypoint == false)
 			return p``;
-		if (config.show_alarm == false)
-          return p``;
-		var alert_title = ''
-		var	alert_content = ''
-		for (let content of weather.attributes.forecast_alert.content){
-			alert_title = alert_title + `${content['title']}`
-			alert_content =	alert_content + `${content['description']}`
-		}
 		return p`
 		 <div>
 			<ul style="list-style:none;padding:0 0 0 14px;margin: 0;">
-			  <li style="font-weight:bold;"><span class="ha-icon"
+			  <li style="font-weight:bold; display:${weather.attributes.forecast_minutely ? 'block':'none'}"><span class="ha-icon"
 					  ><ha-icon icon="mdi:camera-timer"></ha-icon
 					></span> ${weather.attributes.forecast_minutely}</li>
-			  <li><span class="ha-icon"
+			  <li style="display:${weather.attributes.forecast_hourly ? 'block':'none'}"><span class="ha-icon"
 					  ><ha-icon icon="mdi:clock-outline"></ha-icon
-					></span>${weather.attributes.forecast_hourly}</li>
-			  <li style="font-weight:bold; color:red; display:${weather.attributes.forecast_alert.content.length > 0 ? 'block':'none'}"><span class="ha-icon"
-					  ><ha-icon icon="mdi:timer-alert-outline"></ha-icon
-					></span>${alert_title}</li>
-			  <li style="font-weight:nomal; color:red; display:${weather.attributes.forecast_alert.content.length > 0 ? 'block':'none'}"><span class="ha-icon"
-					  ><ha-icon icon="mdi:message-alert-outline"></ha-icon
-					></span>${alert_content}</li>
+					></span> ${weather.attributes.forecast_hourly}</li>
 			</ul>
 		  </div>
-		`;
-	}	
+		`;               
+	}
+	
+	renderWarning({config, weather} = this) {
+		if (config.show_warning == false)
+          return p``;
+		var alert_title = ''
+		var	alert_content = ''
+		var htmlstr =''
+		var indexstr = ''
+		var isshowtext = 'none'
+		if (config.show_warningtext == true){
+			isshowtext = 'block'
+		}
 
+			for (let [index, content] of weather.attributes.forecast_alert.content.entries()){
+				alert_title = content['title']
+				alert_content =	content['description']			
+				if (weather.attributes.forecast_alert.content.length>1){
+					indexstr = String(index+1) + '. '
+				}
+				htmlstr += '<li style=\"font-weight:bold; color:red;\"><span class=\"ha-icon\"><ha-icon icon=\"mdi:timer-alert-outline\"></ha-icon></span> '+ indexstr +alert_title+'</li><li style=\"font-weight:nomal; color:red; display: '+isshowtext+'\"}\"><span class=\"ha-icon\"><ha-icon icon=\"mdi:message-alert-outline\"></ha-icon></span> '+alert_content+'</li>'
+			}
+			
+			return p`
+			<div>
+					<ul style="list-style:none;padding:0 0 0 14px;margin: 0;">
+					  ${this.unsafeHTML(htmlstr)}
+					</ul>
+				  </div>
+			`; 
+
+	}
+	
+	unsafeHTML(htmlString) {
+	  const template = document.createElement('template');
+	  template.innerHTML = htmlString;
+	  return template.content;
+	}
+	
 
     renderAttributes({config, weather, humidity, pressure, windSpeed, windDirection} = this) {
       if (this.unitSpeed === 'm/s') {
@@ -15865,7 +15930,7 @@
           <ha-icon icon="hass:water-percent"></ha-icon> ${humidity} %<br>
           <ha-icon icon="hass:gauge"></ha-icon> ${pressure} ${this.ll('units')[this.unitPressure]}
         </div>
-        <div style="cursor: pointer;" @click="${(e) => this.showMoreInfo(sun.entity)}">
+        <div style="cursor: pointer;" @click="${(e) => this.showMoreInfo("sun.sun")}">
           ${this.renderSun()}
         </div>        
 		<div>
