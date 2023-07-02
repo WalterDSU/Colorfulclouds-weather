@@ -59,19 +59,21 @@
 ```yaml
 type: custom:colorfulclouds_weather-chart-card
 entity: weather.wo_de_jia
-title: ''
-name: ''
-show_attributes: true
-show_hourly_forecast: true
-show_daily_forecast: true
-show_daily_chart: true
-show_daily_date: true
-show_condition_text: true
-show_keypoint: true
-show_warning: true
-show_warningtext: false
-show_wind: false
-show_daily_temperature: false
+title:                  #卡片标题
+name:                   #名称，不填写则显示城市或县名称
+show_attributes: true   #是否显示属性
+show_hourly_forecast: true  #是否显示小时级预报
+show_daily_forecast: true   #是否显示天级预报
+show_daily_chart: true      #是否曲线图表
+show_daily_date: true       #是否天级预报的日期
+show_condition_text: true   #是否显示天级预报的天气名称
+show_keypoint: true         #是否显示关键总结的一句话信息
+show_warning: true          #是否显示气象预警信息
+show_warningtext: false      #是否显示气象预警信息的详细内容
+show_night: false            #是否显示天级预报的夜间内容(暂未提供内容)
+show_wind: false            #是否显示天级预报的风速风向
+show_daily_temperature: false #是否显示天级预报的气温文字
+show_thick_border: false      #是否以 #9e9e9e的线条显示，默认以系统divider线条显示
 ```
   
 ## 安装配置
