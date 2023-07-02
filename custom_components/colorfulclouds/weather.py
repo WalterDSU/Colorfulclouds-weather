@@ -373,6 +373,8 @@ class ColorfulCloudsEntity(WeatherEntity):
         data['hourly_aqi'] = self.coordinator.data['result']['hourly']['air_quality']['aqi']
         data['hourly_pm25'] = self.coordinator.data['result']['hourly']['air_quality']['pm25']
         
+        data['city'] = self.coordinator.data['result']['alert']['adcodes'][len(self.coordinator.data['result']['alert']['adcodes'])-1]['name']
+        
         if self.life == True:
             data[ATTR_SUGGESTION] = [{'title': k, 'title_cn': TRANSLATE_SUGGESTION.get(k,k), 'brf': v.get('desc'), 'txt': v.get('detail') } for k, v in self.coordinator.data['lifeindex'].items()]
             data["custom_ui_more_info"] = "colorfulclouds-weather-more-info"        
@@ -389,12 +391,18 @@ class ColorfulCloudsEntity(WeatherEntity):
                 "skycon": self.coordinator.data['result']['daily']['skycon'][i]['value'],
                 "condition_cn": CONDITION_CN_MAP[self.coordinator.data['result']['daily']['skycon'][i]['value']],
                 ATTR_FORECAST_NATIVE_PRECIPITATION: self.coordinator.data['result']['daily']['precipitation'][i]['avg'],
-                ATTR_FORECAST_NATIVE_TEMP: self.coordinator.data['result']['daily']['temperature'][i]['max'],
-                ATTR_FORECAST_NATIVE_TEMP_LOW: self.coordinator.data['result']['daily']['temperature'][i]['min'],
+                ATTR_FORECAST_NATIVE_TEMP: int(self.coordinator.data['result']['daily']['temperature'][i]['max']),
+                ATTR_FORECAST_NATIVE_TEMP_LOW: int(self.coordinator.data['result']['daily']['temperature'][i]['min']),
                 ATTR_FORECAST_WIND_BEARING: self.coordinator.data['result']['daily']['wind'][i]['avg']['direction'],
                 ATTR_FORECAST_NATIVE_WIND_SPEED: self.coordinator.data['result']['daily']['wind'][i]['avg']['speed'],
                 "winddir": self.getWindDir(self.coordinator.data['result']['daily']['wind'][i]['avg']['direction']),
-                "windscale": self.getWindLevel(self.coordinator.data['result']['daily']['wind'][i]['avg']['speed'])
+                "windscale": self.getWindLevel(self.coordinator.data['result']['daily']['wind'][i]['avg']['speed']),
+                "temperature_08h_20h": self.coordinator.data['result']['daily']['temperature_08h_20h'][i],
+                "temperature_20h_32h": self.coordinator.data['result']['daily']['temperature_20h_32h'][i],
+                "wind_08h_20h": self.coordinator.data['result']['daily']['wind_08h_20h'][i],
+                "wind_20h_32h": self.coordinator.data['result']['daily']['wind_20h_32h'][i],
+                "precipitation_08h_20h": self.coordinator.data['result']['daily']['precipitation_08h_20h'][i],
+                "precipitation_20h_32h": self.coordinator.data['result']['daily']['precipitation_20h_32h'][i]
             }
             forecast_data.append(data_dict)
 
@@ -406,13 +414,14 @@ class ColorfulCloudsEntity(WeatherEntity):
         hourly_data = {}
         hourly_data['hourly_precipitation'] = self.coordinator.data['result']['hourly']['precipitation']
         hourly_data['hourly_temperature'] = self.coordinator.data['result']['hourly']['temperature']
+        hourly_data['hourly_apparent_temperature'] = self.coordinator.data['result']['hourly']['apparent_temperature']
         hourly_data['hourly_humidity'] = self.coordinator.data['result']['hourly']['humidity']
         hourly_data['hourly_cloudrate'] = self.coordinator.data['result']['hourly']['cloudrate']
         hourly_data['hourly_skycon'] = self.coordinator.data['result']['hourly']['skycon']
         hourly_data['hourly_wind'] = self.coordinator.data['result']['hourly']['wind']
         hourly_data['hourly_visibility'] = self.coordinator.data['result']['hourly']['visibility']
         hourly_data['hourly_aqi'] = self.coordinator.data['result']['hourly']['air_quality']['aqi']
-        hourly_data['hourly_pm25'] = self.coordinator.data['result']['hourly']['air_quality']['pm25']
+        hourly_data['hourly_pm25'] = self.coordinator.data['result']['hourly']['air_quality']['pm25']        
 
         if hourly_data['hourly_precipitation']:
             summarystr = ""
@@ -449,7 +458,7 @@ class ColorfulCloudsEntity(WeatherEntity):
                     'condition': CONDITION_MAP[hourly_data['hourly_skycon'][i]['value']],
                     'condition_cn': CONDITION_CN_MAP[hourly_data['hourly_skycon'][i]['value']],
                     "winddir": self.getWindDir(hourly_data['hourly_wind'][i]['direction']),
-                    "windscale": self.getWindLevel(hourly_data['hourly_wind'][i]['speed'])
+                    "windscale": self.getWindLevel(hourly_data['hourly_wind'][i]['speed'])                    
                 }
                 hourly_forecast_data.append(hourly_forecastItem)    
                             
@@ -532,10 +541,46 @@ class ColorfulCloudsEntity(WeatherEntity):
             res2 = "7"
             res3 = "劲风（疾风）"
             res4 = "步行困难"
+        elif float(res) < 75:
+            res2 = "8"
+            res3 = "狂风大作"
+            res4 = "狂风大作"
+        elif float(res) < 88:
+            res2 = "9"
+            res3 = "狂风呼啸"
+            res4 = "狂风呼啸"
+        elif float(res) < 103:
+            res2 = "10"
+            res3 = "暴风毁树"
+            res4 = "暴风毁树"
+        elif float(res) < 118:
+            res2 = "11"
+            res3 = "暴风毁树"
+            res4 = "暴风毁树"
+        elif float(res) < 134:
+            res2 = "12"
+            res3 = "飓风"
+            res4 = "飓风"
+        elif float(res) < 150:
+            res2 = "13"
+            res3 = "台风"
+            res4 = "台风"
+        elif float(res) < 167:
+            res2 = "14"
+            res3 = "强台风"
+            res4 = "强台风"
+        elif float(res) < 184:
+            res2 = "15"
+            res3 = "强台风"
+            res4 = "强台风"
+        elif float(res) < 202:
+            res2 = "16"
+            res3 = "超强台风"
+            res4 = "超强台风"
         else:
-            res2 = "7+"
-            res3 = "大风以上"
-            res4 = "有破坏性"
+            res2 = "17+"
+            res3 = "超强台风"
+            res4 = "超强台风"
         return res2
     
     
