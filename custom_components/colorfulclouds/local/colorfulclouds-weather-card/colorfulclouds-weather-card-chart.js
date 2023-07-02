@@ -14819,7 +14819,7 @@
 		//console.log(hourly_forecast);
 	  }
 	
-      this.iconSize = this.config.icons_size ? this.config.icons_size : 25;
+      this.iconSize = this.config.icons_size ? this.config.icons_size : 22;
       this.unitSpeed = this.config.units && this.config.units.speed
         ? this.config.units.speed : 'km/h';
       this.unitPressure = this.config.units && this.config.units.pressure
@@ -15617,6 +15617,22 @@
 			}
           </div>`:''}
 		  
+		  ${config.show_daily_temperature == true ? p`
+          <div class="conditions">
+            ${forecast.map((item, index) => {				
+				if (index === 0) {					
+					return p`
+              <i class="textdefault daybackground day1">${item.temperature}${this._hass.config.unit_system.temperature}</i>
+					`
+				} else {					
+					return p`
+              <i class="textdefault daybackground day">${item.temperature}${this._hass.config.unit_system.temperature}</i>
+					`
+				}
+			})
+			}
+          </div>`:''}
+		  
 		  
           <div class="chart-container" style="display:${config.show_daily_chart == false ? 'none':'block'}">
             <canvas id="forecastChart"></canvas>
@@ -15787,8 +15803,8 @@
           background-color: rgb(21, 123, 255)
         }
         .icon.bigger {
-          width: 2em;
-          height: 2em;
+          width: 1.6em;
+          height: 1.6em;
           left: 0em;
         }
         .dayname {
@@ -15835,7 +15851,7 @@
 		  <div>
 			<span> 紫外：${this.getSuggestion("UltravioletIndex")}</span><br>
 			<span> 穿衣：${this.getSuggestion("DressingIndex")}</span><br>
-			<span> 空气：${this.getSuggestion("AQIIndex")}</span><br>
+			<span> 晾晒：${this.getSuggestion("DryingIndex")}</span><br>
 			<span> 感冒：${this.getSuggestion("ColdRiskIndex")}</span><br>	
 		  </div>
 		  <div>          
