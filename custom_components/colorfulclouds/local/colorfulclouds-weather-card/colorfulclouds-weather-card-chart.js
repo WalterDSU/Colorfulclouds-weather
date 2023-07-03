@@ -15553,11 +15553,11 @@
             ${forecast.map((item, index) => {
 				if (index === 0) {					
 					return p`
-              <i class="textdefault daybackground day1" style="font-style: normal; font-size: 10px;">${new Date(item.datetime).toLocaleDateString(this.language,{month: "2-digit",day: "2-digit"})}</i>
+              <i class="textdate daybackground day1" style="font-style: normal;">${new Date(item.datetime).toLocaleDateString(this.language,{month: "2-digit",day: "2-digit"})}</i>
 					`
 				} else {					
 					return p`
-              <i class="textdefault daybackground day" style="font-style: normal; font-size: 10px;">${new Date(item.datetime).toLocaleDateString(this.language,{month: "2-digit",day: "2-digit"})}</i>
+              <i class="textdate daybackground day" style="font-style: normal;">${new Date(item.datetime).toLocaleDateString(this.language,{month: "2-digit",day: "2-digit"})}</i>
 					`
 				}
 			})
@@ -15630,11 +15630,11 @@
             ${forecast.map((item, index) => {				
 				if (index === 0) {					
 					return p`
-              <i class="textdefault daybackground day1">${item.temperature}${this._hass.config.unit_system.temperature}</i>
+              <i class="textdate daybackground day1">${item.temperature}${this._hass.config.unit_system.temperature}</i>
 					`
 				} else {					
 					return p`
-              <i class="textdefault daybackground day">${item.temperature}${this._hass.config.unit_system.temperature}</i>
+              <i class="textdate daybackground day">${item.temperature}${this._hass.config.unit_system.temperature}</i>
 					`
 				}
 			})
@@ -15698,13 +15698,13 @@
 		  align-items: baseline;
           color: var(--secondary-text-color);
 		  min-width: 48px;
-        }
+        }		
         .time {
           font-size: 12px;
           color: var(--secondary-text-color);
           align-items: baseline;
 		  min-width: 118px;
-        }
+        }		
         .now {
           display: flex;
           justify-content: space-between;
@@ -15831,6 +15831,35 @@
           background-repeat: no-repeat;
           text-indent: -9999px;
         }
+		.textdefaut {
+			font-size: 12px;
+		}
+		.textdate {
+			font-size: 10px;
+		}
+		@media (max-width: 390px) {
+		    .title {
+			  margin-left: 4px;
+			  font-size: 8px;
+			  min-width: 36px;
+			}
+			.time {
+			  font-size: 10px;
+			  min-width: 110px;
+			}
+			.main {
+			  font-size: 36px;
+			  line-height: 1em;
+			}
+			.attributes div{
+			  font-size: 12px;
+			}
+			.chart-title {
+			  font-size: 14px;
+			}
+			.alarm {
+			  font-size: 12px;
+			}
       </style>
       <div class="header">
           <div style="align-items: baseline;">
