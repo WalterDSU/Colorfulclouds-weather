@@ -15692,6 +15692,9 @@
         .header div {
           display: flex;
         }
+		.header span {
+			font-size: 24px;
+		}
         .title {
           margin-left: 8px;
           font-size: 12px;
@@ -15864,7 +15867,7 @@
       <div class="header">
           <div style="align-items: baseline;">
             <div style="align-items: baseline; cursor: pointer;" @click="${(e) => this.showMoreInfo(config.entity)}">
-              ${skycon2cn[weather.attributes.skycon]}
+              <span>${skycon2cn[weather.attributes.skycon]}</span>
               ${this._showValue(weather.attributes.aqi) ? p`
                 <div class = "aqi ${this.aqiLevel(weather.attributes.aqi)}">${this.roundNumber(weather.attributes.aqi)}</div>
               ` : ''}
