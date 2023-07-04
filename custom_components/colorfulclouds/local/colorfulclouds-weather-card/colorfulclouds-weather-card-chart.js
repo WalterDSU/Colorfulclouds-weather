@@ -15642,8 +15642,22 @@
           </div>`:''}
 		  
 		  
-          <div class="chart-container" style="display:${config.show_daily_chart == false ? 'none':'block'}">
+          <div class="chart-container move1" style="display:${config.show_daily_chart == false ? 'none':'block'}">
             <canvas id="forecastChart"></canvas>
+          </div>
+		  <div class="conditions move">
+            ${forecast.map((item, index) => {				
+				if (index === 0) {					
+					return p`
+              <i class="textdefault daybackground day1">&nbsp;</i>
+					`
+				} else {					
+					return p`
+              <i class="textdefault daybackground day">&nbsp;</i>
+					`
+				}
+			})
+			}
           </div>
 		  
 		  `}
@@ -15784,6 +15798,18 @@
           justify-content: space-between;
           align-items: center;
           margin: 0px 4.5px 0px 4.5px;
+        }
+		.move {
+          position: relative;
+          top: -29px;
+        }
+        .move1 {
+          position: relative;
+          top: -5px;
+        }
+        .move2 {
+          position:r elative;
+          top: -34px;
         }
         .aqi,
         .alarm {
