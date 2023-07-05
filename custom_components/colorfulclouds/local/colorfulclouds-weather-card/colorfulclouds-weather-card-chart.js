@@ -15662,12 +15662,12 @@
 		  
 		  `}
 		  ${config.show_hourly_forecast == false ? ``: p`
-		  <div class="divider"></div>
+		  <div class="divider move2"></div>
 		  ${this.hourly_forecast ? p`
-		  <div class="chart-container">
+		  <div class="chart-container move">
             <canvas id="forecasthourlyChart"></canvas>
           </div>		  
-		  <div class="conditions">
+		  <div class="conditions move">
             ${this.hourly_forecast.map((item) => p`
             <i class="icon" style="background: none, url(${iconUrl}${item.skycon}.svg) no-repeat; background-size: contain;" title="${skycon2cn[item.skycon]}"></i>
             `)}
@@ -15808,7 +15808,7 @@
           top: -5px;
         }
         .move2 {
-          position:r elative;
+          position: relative;
           top: -34px;
         }
         .aqi,
