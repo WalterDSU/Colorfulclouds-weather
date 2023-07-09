@@ -7,6 +7,6 @@
   "version": "2.1",
   "iot_class": "cloud_polling", 
   "config_flow": true,
-  "codeowners": ["@fineemb,@dscao"],
+  "codeowners": ["@fineemb,@dscao,@WalterDSU"],
   "requirements": []
 }
