@@ -153,6 +153,8 @@ class ColorfulcloudsSensor(Entity):
             return self.coordinator.data["result"]["realtime"]["precipitation"]["local"]["intensity"]
         if self.kind == "update_time":
             return datetime.fromtimestamp(self.coordinator.data["server_time"]) 
+        if self.kind == "pm25":
+            return self.coordinator.data["result"]["realtime"]["air_quality"]["pm25"]
 
     @property
     def icon(self):
