@@ -212,10 +212,20 @@ class WeatherCard extends LitElement {
 
 	var	alert_title = ''
 	var	alert_content = ''
-	for (let content of attributes.forecast_alert.content){
-		alert_title = alert_title + `${content['title']}`
-		alert_content =	alert_content + `${content['description']}`
-	}			
+	var	htmlstr =''
+	var	indexstr = ''
+	var	isshowtext = 'block'
+
+	for (let [index, content] of attributes.forecast_alert.content.entries()){
+		alert_title = `${content['title']}`
+		alert_content =	`${content['description']}`
+		if (attributes.forecast_alert.content.length>1){
+			indexstr = String(index+1) + '. '
+		}
+		
+		htmlstr += '<li style=\"font-weight:bold; color:red;\"><span class=\"ha-icon\"><ha-icon icon=\"mdi:timer-alert-outline\"></ha-icon></span> '+ indexstr +alert_title+'</li><li style=\"font-weight:nomal; color:red; display: '+isshowtext+'\"}\"><span class=\"ha-icon\"><ha-icon icon=\"mdi:message-alert-outline\"></ha-icon></span> '+alert_content+'</li>'
+		}
+					
 	
 	
 	return html`
@@ -260,15 +270,11 @@ class WeatherCard extends LitElement {
 					></span> ${attributes.forecast_minutely}</li>
 			  <li><span class="ha-icon"
 					  ><ha-icon icon="mdi:clock-outline"></ha-icon
-					></span>${attributes.forecast_hourly}</li>
-			  <li style="font-weight:bold; color:red; display:${attributes.forecast_alert.content.length > 0 ? 'block':'none'}"><span class="ha-icon"
-					  ><ha-icon icon="mdi:timer-alert-outline"></ha-icon
-					></span>${alert_title}</li>
-			  <li style="font-weight:nomal; color:red; display:${attributes.forecast_alert.content.length > 0 ? 'block':'none'}"><span class="ha-icon"
-					  ><ha-icon icon="mdi:message-alert-outline"></ha-icon
-					></span>${alert_content}</li>
+					></span> ${attributes.forecast_hourly}</li>
+                              ${this.unsafeHTML(htmlstr)}
 			</ul>
 		  </div>
+
 			  <span>
 				<ul class="variations">
 				  <li>
@@ -328,6 +334,7 @@ class WeatherCard extends LitElement {
 			  </span>
 			</div>
 		  `:""}
+
 		${
 		  attributes.forecast &&
 		  attributes.forecast.length > 0 &&
@@ -355,7 +362,10 @@ class WeatherCard extends LitElement {
 						  <br /><i
 							class="icon"
 							style="background: none, url(${iconUrl}${daily.skycon}.svg) no-repeat; background-size: contain;"
+							title="${skycon2cn[daily.skycon]}"
 						  ></i>
+						  <br />
+						  <span>${skycon2cn[daily.skycon]}</span>
 						  <br /><span class="highTemp"
 							>${daily.temperature}${
 							  this.getUnit("temperature")
@@ -407,7 +417,7 @@ class WeatherCard extends LitElement {
 								  }
 							  )
 							  }</span>
-							<i class="icon" style="background: none${i>0 && attributes.hourly_skycon[i].value==attributes.hourly_skycon[i-1].value?"":", url("+iconUrl+attributes.hourly_skycon[i].value+".svg) no-repeat"}; background-size: contain;"></i>
+							<i class="icon" style="background: none${i>0 && attributes.hourly_skycon[i].value==attributes.hourly_skycon[i-1].value?"":", url("+iconUrl+attributes.hourly_skycon[i].value+".svg) no-repeat"}; background-size: contain;" title="${skycon2cn[attributes.hourly_skycon[i].value]}"></i>
 							<br />
 							<span class="dayname">.</span>
 							<span style="border-top-color: rgb(${this.tempCOLOR[i]});border-top-width:${(attributes.hourly_temperature[i].value-this.tempMIN)/(this.tempMAX-this.tempMIN)*7+3}px" class="dtemp">.</span>
@@ -572,6 +582,11 @@ class WeatherCard extends LitElement {
 		styles["--primary-color"] || meta.getAttribute("default-content");
 	  meta.setAttribute("content", themeColor);
 	}
+  }
+  unsafeHTML(htmlString) {
+   const template = document.createElement('template');
+   template.innerHTML = htmlString;
+   return template.content;
   }
   renderStyle() {
 	return html`
