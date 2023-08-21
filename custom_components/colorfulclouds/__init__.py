@@ -43,6 +43,7 @@ from .const import (
     ROOT_PATH,
     DOMAIN,
     UNDO_UPDATE_LISTENER,
+    CONF_UPDATE_INTERVAL,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -79,19 +80,21 @@ async def async_setup_entry(hass, config_entry) -> bool:
     location_key = config_entry.unique_id
     longitude = config_entry.data[CONF_LONGITUDE]
     latitude = config_entry.data[CONF_LATITUDE]
-    api_version = config_entry.data[CONF_API_VERSION]
+    #api_version = config_entry.data[CONF_API_VERSION]
+    api_version = "v2.6"
     dailysteps = config_entry.options.get(CONF_DAILYSTEPS, 5)
     hourlysteps = config_entry.options.get(CONF_HOURLYSTEPS, 24)
     alert = config_entry.options.get(CONF_ALERT, True)
     life = config_entry.options.get(CONF_LIFEINDEX, False)
     starttime = config_entry.options.get(CONF_STARTTIME, 0)
+    update_interval_minutes = config_entry.options.get(CONF_UPDATE_INTERVAL, 10)
 
     _LOGGER.debug("Using location_key: %s, get forecast: %s", location_key, api_version)
 
     websession = async_get_clientsession(hass)
 
     coordinator = ColorfulcloudsDataUpdateCoordinator(
-        hass, websession, api_key, api_version, location_key, longitude, latitude, dailysteps, hourlysteps, alert, life, starttime
+        hass, websession, api_key, api_version, location_key, longitude, latitude, dailysteps, hourlysteps, alert, life, starttime, update_interval_minutes
     )
     await coordinator.async_refresh()
 
@@ -139,7 +142,7 @@ async def update_listener(hass, config_entry):
 class ColorfulcloudsDataUpdateCoordinator(DataUpdateCoordinator):
     """Class to manage fetching Colorfulclouds data API."""
 
-    def __init__(self, hass, session, api_key, api_version, location_key, longitude, latitude, dailysteps: int, hourlysteps: int, alert: bool, life: bool, starttime: int):
+    def __init__(self, hass, session, api_key, api_version, location_key, longitude, latitude, dailysteps: int, hourlysteps: int, alert: bool, life: bool, starttime: int, update_interval_minutes: int):
         """Initialize."""
         self.location_key = location_key
         self.longitude = longitude
@@ -151,6 +154,7 @@ class ColorfulcloudsDataUpdateCoordinator(DataUpdateCoordinator):
         self.api_version = api_version
         self.api_key = api_key
         self.starttime = starttime
+        self.update_interval_minutes = update_interval_minutes
         self._lifeindextime = 0
         self._lifeindex = {}
         is_metric = hass.config.units is METRIC_SYSTEM
@@ -160,7 +164,7 @@ class ColorfulcloudsDataUpdateCoordinator(DataUpdateCoordinator):
             self.is_metric = "imperial"
 
         update_interval = (
-            datetime.timedelta(minutes=2 if str(self.api_key)[0:6] == "UR8ASa" else 6)
+            datetime.timedelta(minutes=2 if str(self.api_key)[0:6] == "UR8ASa" else self.update_interval_minutes)
         )
         _LOGGER.debug("Data will be update every %s", update_interval)
 
@@ -188,7 +192,7 @@ class ColorfulcloudsDataUpdateCoordinator(DataUpdateCoordinator):
         
         
         
-        if self.life == True and (int(datetime.datetime.now().timestamp()) - int(self._lifeindextime)) > 3600:
+        if self.life == True and (int(datetime.datetime.now().timestamp()) - int(self._lifeindextime)) >= 3600:
             lifeindexnewdata = {}
             try:
                 async with timeout(10):
