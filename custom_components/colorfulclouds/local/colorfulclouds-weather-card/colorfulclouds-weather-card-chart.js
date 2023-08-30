@@ -16035,11 +16035,9 @@
         return p``;
       return p`
       <ha-icon icon="mdi:weather-sunset-up"></ha-icon>
-        ${new Date(sun.attributes.next_rising).toLocaleTimeString(language,
-        {hour:'2-digit', minute:'2-digit'})}<br>
+        ${this.weather.attributes.sunrise ? this.weather.attributes.sunrise : new Date(sun.attributes.next_rising).toLocaleTimeString(language,{hour:'2-digit', minute:'2-digit'})}<br>
       <ha-icon icon="mdi:weather-sunset-down"></ha-icon>
-        ${new Date(sun.attributes.next_setting).toLocaleTimeString(language,
-        {hour:'2-digit', minute:'2-digit'})}
+        ${this.weather.attributes.sunset ? this.weather.attributes.sunset : new Date(sun.attributes.next_setting).toLocaleTimeString(language,{hour:'2-digit', minute:'2-digit'})}
     `;
     }
 

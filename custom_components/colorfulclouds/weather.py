@@ -196,7 +196,7 @@ class ColorfulCloudsEntity(WeatherEntity):
     @property
     def unique_id(self):
         """Return a unique_id for this entity."""
-        _LOGGER.debug("weather_unique_id: %s", self.coordinator.data["location_key"])
+        #_LOGGER.debug("weather_unique_id: %s", self.coordinator.data["location_key"])
         return self.coordinator.data["location_key"]
 
     @property
@@ -373,6 +373,9 @@ class ColorfulCloudsEntity(WeatherEntity):
         data['hourly_aqi'] = self.coordinator.data['result']['hourly']['air_quality']['aqi']
         data['hourly_pm25'] = self.coordinator.data['result']['hourly']['air_quality']['pm25']
         
+        data['sunrise'] = self.coordinator.data['result']['daily']['astro'][0]['sunrise']['time']
+        data['sunset'] = self.coordinator.data['result']['daily']['astro'][0]['sunset']['time']
+        
         data['city'] = self.coordinator.data['result']['alert']['adcodes'][len(self.coordinator.data['result']['alert']['adcodes'])-1]['name']
         
         if self.life == True:
@@ -402,7 +405,8 @@ class ColorfulCloudsEntity(WeatherEntity):
                 "wind_08h_20h": self.coordinator.data['result']['daily']['wind_08h_20h'][i],
                 "wind_20h_32h": self.coordinator.data['result']['daily']['wind_20h_32h'][i],
                 "precipitation_08h_20h": self.coordinator.data['result']['daily']['precipitation_08h_20h'][i],
-                "precipitation_20h_32h": self.coordinator.data['result']['daily']['precipitation_20h_32h'][i]
+                "precipitation_20h_32h": self.coordinator.data['result']['daily']['precipitation_20h_32h'][i],
+                "sundata": self.coordinator.data['result']['daily']['astro'][i]
             }
             forecast_data.append(data_dict)
 
@@ -503,7 +507,7 @@ class ColorfulCloudsEntity(WeatherEntity):
 
     
     def getWindDir(self, deg):
-        _LOGGER.debug(int((deg + 11.25) / 22.5))
+        #_LOGGER.debug(int((deg + 11.25) / 22.5))
         return WINDDIRECTIONS[int((deg + 11.25) / 22.5)]
 
     
