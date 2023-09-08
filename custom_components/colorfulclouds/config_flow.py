@@ -15,7 +15,8 @@ from .const import (
     CONF_DAILYSTEPS,
     CONF_ALERT,
     CONF_LIFEINDEX,
-    CONF_STARTTIME
+    CONF_STARTTIME,
+    CONF_UPDATE_INTERVAL,
     )
 import voluptuous as vol
 
@@ -69,7 +70,8 @@ class ColorfulcloudslowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         # Defaults
         api_version = "v2.6"
         data_schema = OrderedDict()
-        data_schema[vol.Optional(CONF_API_KEY, default="UR8ASaXXXXXXXX")] = str
+        #data_schema[vol.Required(CONF_API_KEY)] = str
+        data_schema[vol.Optional(CONF_API_KEY, default="")] = str
         data_schema[vol.Optional("api_version", default=api_version)] = str
         data_schema[vol.Optional(CONF_LONGITUDE, default=self.hass.config.longitude)] = cv.longitude
         data_schema[vol.Optional(CONF_LATITUDE, default=self.hass.config.latitude)] = cv.latitude
@@ -114,6 +116,10 @@ class ColorfulcloudsOptionsFlow(config_entries.OptionsFlow):
             step_id="user",
             data_schema=vol.Schema(
                 {
+                    vol.Optional(
+                        CONF_UPDATE_INTERVAL,
+                        default=self.config_entry.options.get(CONF_UPDATE_INTERVAL, 10),
+                    ): vol.All(vol.Coerce(int), vol.Range(min=5, max=1440)),
                     vol.Optional(
                         CONF_DAILYSTEPS,
                         default=self.config_entry.options.get(CONF_DAILYSTEPS, 5),

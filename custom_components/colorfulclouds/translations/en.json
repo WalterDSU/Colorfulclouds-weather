@@ -30,7 +30,8 @@
                     "hourlysteps": "Forecast hours (24-360)",
                     "alert": "Extreme weather warning",
 					"life": "Lifeindex",
-                    "starttime": "Start time (-2 ~ 0)"
+                    "starttime": "Start time (-2 ~ 0)",
+                    "update_interval_minutes": "update_interval_minutes(5-1440 minutes)"
                 },
                 "description": "Set the number of days you need to obtain forecast data, 0 means no. The free or personal version of the life index has 4 simple data items, and the api_key above the professional package shows 28 rich version of the life index,"
             }
