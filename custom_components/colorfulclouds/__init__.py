@@ -69,7 +69,6 @@ async def async_setup_entry(hass, config_entry) -> bool:
     
     hass.http.register_static_path(ROOT_PATH, hass.config.path('custom_components/colorfulclouds/local'), False)
     _LOGGER.debug(f"register_static_path: {ROOT_PATH + ':custom_components/colorfulclouds/local'}")
-    hass.components.frontend.add_extra_js_url(hass, ROOT_PATH + '/colorfulclouds-weather-card/colorfulclouds-weather-card.js?ver='+VERSION)
     hass.components.frontend.add_extra_js_url(hass, ROOT_PATH + '/colorfulclouds-weather-card/colorfulclouds-weather-card-chart.js?ver='+VERSION)
     hass.components.frontend.add_extra_js_url(hass, ROOT_PATH + '/colorfulclouds-weather-card/colorfulclouds-weather-card-more.js?ver='+VERSION)
     
