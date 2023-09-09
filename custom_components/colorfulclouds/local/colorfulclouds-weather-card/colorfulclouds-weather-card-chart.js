@@ -14805,22 +14805,7 @@
         this.windSpeed = this.weather.attributes.wind_speed;
         this.windDirection = this.weather.attributes.wind_bearing;
       }
-	  if (this.weather.attributes.hourly_precipitation) {
-		const hourly_forecast = [];
-		for (let i = 0; i < this.weather.attributes.hourly_precipitation.length; i++) {
-		  const hourly_forecastItem = {
-			skycon: this.weather.attributes.hourly_skycon[i].value,
-			temperature: Math.round(this.weather.attributes.hourly_temperature[i].value),
-			datetime: this.weather.attributes.hourly_precipitation[i].datetime.substr(0, 16).replace('T', ' '), // 转换时间格式
-			precipitation: this.weather.attributes.hourly_precipitation[i].value,
-			probable_precipitation: Math.round(this.weather.attributes.hourly_precipitation[i].probability).toString()
-		  };
-		  hourly_forecast.push(hourly_forecastItem);
-		}
-		this.hourly_forecast = hourly_forecast;
-		//console.log(hourly_forecast);
-	  }
-	
+  
       this.iconSize = this.config.icons_size ? this.config.icons_size : 22;
       this.unitSpeed = this.config.units && this.config.units.speed
         ? this.config.units.speed : 'km/h';
@@ -14910,19 +14895,21 @@
     }
 
     drawChart({config, language, weather, forecastItems} = this) {
-      if (!weather || !weather.attributes || !weather.attributes.forecast) {
+      if (!weather || !weather.attributes || !weather.attributes.daily_forecast) {
         return [];
       }
       if (this.forecastChart) {
         this.forecastChart.destroy();
       }
+	  
       var tempHiColor = config.temp1_color ? config.temp1_color : 'rgba(230, 100, 100, 1.0)';
       var tempLoColor = config.temp2_color ? config.temp2_color : 'rgba(68, 115, 158, 1.0)';
       var precipColor = config.precip_color ? config.precip_color : 'rgba(132, 209, 253, 1.0)';
       var tempUnit = this._hass.config.unit_system.temperature;
       var lengthUnit = this._hass.config.unit_system.length;
       var precipUnit = lengthUnit === 'km' ? this.ll('units')['mm'] : this.ll('units')['in'];
-      var forecast = weather.attributes.forecast.slice(0, forecastItems);
+      var forecast = weather.attributes.daily_forecast.slice(0, forecastItems);
+	  console.log(forecast)
       if ((new Date(forecast[1].datetime) - new Date(forecast[0].datetime)) < 864e5)
         var mode = 'hourly';
       else
@@ -14935,11 +14922,11 @@
       for (i = 0; i < forecast.length; i++) {
         var d = forecast[i];
         dateTime.push(d.datetime);
-        tempHigh.push(d.temperature);
-        if (typeof d.templow !== 'undefined') {
-          tempLow.push(d.templow);
+        tempHigh.push(d.native_temperature);
+        if (typeof d.native_templow !== 'undefined') {
+          tempLow.push(d.native_templow);
         }
-        precip.push(d.precipitation);
+        precip.push(d.native_precipitation);
       }
       var style = getComputedStyle(document.body);
       var backgroundColor = style.getPropertyValue('--card-background-color');
@@ -15108,9 +15095,9 @@
       });
     }
 	
-	drawCharthourly({config, language, weather, hourly_forecast, forecastItems} = this) {
-	  //console.log(hourly_forecast)
-      if (!weather || !weather.attributes || !hourly_forecast) {
+	drawCharthourly({config, language, weather, forecastItems} = this) {
+	  
+      if (!weather || !weather.attributes || !weather.attributes.hourly_forecast) {
         return [];
       }
       if (this.forecasthourlyChart) {
@@ -15124,7 +15111,8 @@
       var lengthUnit = this._hass.config.unit_system.length;
 	  var precipUnit = lengthUnit === 'km' ? this.ll('units')['mm'] : this.ll('units')['in'];
       var popUnit = '%';
-      var forecasthourly = hourly_forecast.slice(0, forecastItems);
+      var forecasthourly = weather.attributes.hourly_forecast.slice(0, forecastItems);
+	  console.log(forecasthourly)
       if ((new Date(forecasthourly[1].datetime) - new Date(forecasthourly[0].datetime)) < 864e5)
         var mode = 'hourly';
       else
@@ -15138,11 +15126,11 @@
       for (i = 0; i < forecasthourly.length; i++) {
         var d = forecasthourly[i];
         dateTime.push(d.datetime);
-        tempHigh.push(d.temperature);
-        if (typeof d.templow !== 'undefined') {
-          tempLow.push(d.templow);
+        tempHigh.push(d.native_temperature);
+        if (typeof d.native_templow !== 'undefined') {
+          tempLow.push(d.native_templow);
         }
-		precip.push(d.precipitation);
+		precip.push(d.native_precipitation);
         pop.push(d.probable_precipitation);
       }
 	  //console.log(precip);
@@ -15365,10 +15353,10 @@
 	
 
     updateChart({weather, forecastItems, forecastChart} = this) {
-      if (!weather || !weather.attributes || !weather.attributes.forecast) {
+      if (!weather || !weather.attributes || !weather.attributes.daily_forecast) {
         return [];
       }
-      var forecast = weather.attributes.forecast.slice(0, forecastItems);
+      var forecast = weather.attributes.daily_forecast.slice(0, forecastItems);
       var i;
       var dateTime = [];
       var tempHigh = [];
@@ -15377,17 +15365,17 @@
       for (i = 0; i < forecast.length; i++) {
         var d = forecast[i];
         dateTime.push(d.datetime);
-        tempHigh.push(d.temperature);
-        if (typeof d.templow !== 'undefined') {
-          tempLow.push(d.templow);
+        tempHigh.push(d.native_temperature);
+        if (typeof d.native_templow !== 'undefined') {
+          tempLow.push(d.native_templow);
         }
-        precip.push(d.precipitation);
+        precip.push(d.native_precipitation);
       }
       if (forecastChart) {
         forecastChart.data.labels = dateTime;
         forecastChart.data.datasets[0].data = tempHigh;
 		forecastChart.data.datasets[1].data = tempLow;
-        forecastChart.data.datasets[2].data = precip;
+		forecastChart.data.datasets[2].data = precip;
         forecastChart.update();
       }
     }
@@ -15407,11 +15395,11 @@
       for (i = 0; i < forecasthourly.length; i++) {
         var d = forecasthourly[i];
         dateTime.push(d.datetime);
-        tempHigh.push(d.temperature);
-        if (typeof d.templow !== 'undefined') {
-          tempLow.push(d.templow);
+        tempHigh.push(d.native_temperature);
+        if (typeof d.native_templow !== 'undefined') {
+          tempLow.push(d.native_templow);
         }
-        precip.push(d.precipitation);
+        precip.push(d.native_precipitation);
         pop.push(d.probable_precipitation);
       }
       if (forecasthourlyChart) {
@@ -15502,7 +15490,7 @@
 		// }	
 	
 	
-      if (!weather || !weather.attributes || !weather.attributes.forecast) {
+      if (!weather || !weather.attributes || !weather.attributes.daily_forecast) {
         return p`
         <style>
           .card {
@@ -15519,9 +15507,9 @@
         </ha-card>
       `;
       }
-      const forecast = weather.attributes.forecast.slice(0, forecastItems);
-	  //const hourly_forecast = weather.attributes.hourly_forecast ? weather.attributes.hourly_forecast.slice(0, forecastItems) : "";
-	  
+      const forecast = weather.attributes.daily_forecast.slice(0, forecastItems);
+	  const hourly_forecast = weather.attributes.hourly_forecast ? weather.attributes.hourly_forecast.slice(0, forecastItems) : "";
+
 	//console.log(hourly_forecast);
       return p`
       <ha-card header="${config.title}">	    
@@ -15630,11 +15618,11 @@
             ${forecast.map((item, index) => {				
 				if (index === 0) {					
 					return p`
-              <i class="textdate daybackground day1">${item.temperature}${this._hass.config.unit_system.temperature}</i>
+              <i class="textdate daybackground day1">${item.native_temperature}${this._hass.config.unit_system.temperature}</i>
 					`
 				} else {					
 					return p`
-              <i class="textdate daybackground day">${item.temperature}${this._hass.config.unit_system.temperature}</i>
+              <i class="textdate daybackground day">${item.native_temperature}${this._hass.config.unit_system.temperature}</i>
 					`
 				}
 			})
@@ -15663,12 +15651,12 @@
 		  `}
 		  ${config.show_hourly_forecast == false ? ``: p`
 		  <div class="divider move2"></div>
-		  ${this.hourly_forecast ? p`
+		  ${hourly_forecast ? p`
 		  <div class="chart-container move">
             <canvas id="forecasthourlyChart"></canvas>
           </div>		  
 		  <div class="conditions move">
-            ${this.hourly_forecast.map((item) => p`
+            ${hourly_forecast.map((item) => p`
             <i class="icon" style="background: none, url(${iconUrl}${item.skycon}.svg) no-repeat; background-size: contain;" title="${skycon2cn[item.skycon]}"></i>
             `)}
           </div>`:""}
