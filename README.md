@@ -9,6 +9,8 @@
 
 # 彩云天气
 
+###没有免费额度了，没什么用了。
+
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-orange.svg)](https://github.com/hacs/integration)
 
 使用最新的v2.6彩云api, [自己去申请key](https://www.caiyunapp.com/dev_center/login.html)
