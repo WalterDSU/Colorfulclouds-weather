@@ -1013,4 +1013,3 @@ window.customCards.push({
   preview: true, // Optional - defaults to false
   description: "彩云天气卡片" // Optional
 });
-
