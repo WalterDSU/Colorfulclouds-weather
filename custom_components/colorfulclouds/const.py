@@ -11,7 +11,7 @@ REQUIRED_FILES = [
     "config_flow.py",
     "translations/en.json",
 ]
-VERSION = "2023.9.9"
+VERSION = "2024.4.19"
 ISSUE_URL = "https://github.com/fineemb/Colorfulclouds-weather/issues"
 
 ROOT_PATH = '/colorfulclouds-local'
@@ -62,6 +62,7 @@ CONF_LATITUDE = "latitude"
 CONF_LONGITUDE = "longitude"
 CONF_ALERT = "alert"
 CONF_LIFEINDEX = "life"
+CONF_CUSTOM_UI = "custom_ui"
 CONF_HOURLYSTEPS = "hourlysteps"
 CONF_DAILYSTEPS = "dailysteps"
 CONF_STARTTIME = "starttime"

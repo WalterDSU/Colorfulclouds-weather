@@ -58,7 +58,17 @@ headers = {'User-Agent': USER_AGENT,
           'Accept-Language': 'zh-Hans-CN;q=1',
 		  'app-version': '6.7.2',
 		  'app_name': 'weather',
-		  'app-name': 'weather'}
+		  'app-name': 'weather'
+          }
+   
+
+USER_AGENT_WX = 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 MicroMessenger/8.0.42(0x18002a29) NetType/WIFI Language/zh_CN'    
+wxheaders = {'User-Agent': USER_AGENT_WX,
+          'Host': 'api.caiyunapp.com',
+          'content-type': 'application/json',
+          'Accept-Encoding': 'gzip,compress,br,deflate',
+		  'Referer': 'https://servicewechat.com/wx487b4e7c415e06ff/93/page-frame.html'
+          }
           
 async def async_setup(hass: HomeAssistant, config: Config) -> bool:
     """Set up configured Colorfulclouds."""
@@ -82,11 +92,13 @@ async def async_setup_entry(hass, config_entry) -> bool:
     latitude = config_entry.data[CONF_LATITUDE]
     #api_version = config_entry.data[CONF_API_VERSION]
     api_version = "v2.6"
-    dailysteps = config_entry.options.get(CONF_DAILYSTEPS, 5)
-    hourlysteps = config_entry.options.get(CONF_HOURLYSTEPS, 24)
+    
+    starttime = config_entry.options.get(CONF_STARTTIME, 0)
+    dailysteps = config_entry.options.get(CONF_DAILYSTEPS, 5) - starttime
+    hourlysteps = config_entry.options.get(CONF_HOURLYSTEPS, 24) - starttime * 24
     alert = config_entry.options.get(CONF_ALERT, True)
     life = config_entry.options.get(CONF_LIFEINDEX, False)
-    starttime = config_entry.options.get(CONF_STARTTIME, 0)
+
     update_interval_minutes = config_entry.options.get(CONF_UPDATE_INTERVAL, 10)
 
     _LOGGER.debug("Using location_key: %s, get forecast: %s", location_key, api_version)
@@ -157,6 +169,7 @@ class ColorfulcloudsDataUpdateCoordinator(DataUpdateCoordinator):
         self.update_interval_minutes = update_interval_minutes
         self._lifeindextime = 0
         self._lifeindex = {}
+        self._data = {}
         is_metric = hass.config.units is METRIC_SYSTEM
         if is_metric:
             self.is_metric = "metric:v2"
@@ -172,7 +185,7 @@ class ColorfulcloudsDataUpdateCoordinator(DataUpdateCoordinator):
 
     # @asyncio.coroutine
     def get_data(self, url):
-        json_text = requests.get(url, headers = headers if str(self.api_key)[0:6] == "UR8ASa" else "").content
+        json_text = requests.get(url, headers = headers if str(self.api_key)[0:4] == "UR8A" else (wxheaders if str(self.api_key)[0:8] == "Y2FpeXVu" else "") ).content
         resdata = json.loads(json_text)
         return resdata
 
@@ -184,7 +197,7 @@ class ColorfulcloudsDataUpdateCoordinator(DataUpdateCoordinator):
                 url = str.format("https://api.caiyunapp.com/{}/{}/{},{}/weather.json?dailysteps={}&hourlysteps={}&alert={}&unit={}&timestamp={}", self.api_version, self.api_key, self.longitude, self.latitude, self.dailysteps, self.hourlysteps, str(self.alert).lower(), self.is_metric, start_timestamp)
                 _LOGGER.debug("Requests remaining: %s", url)
                 # json_text = requests.get(url).content
-                resdata =  await self.hass.async_add_executor_job(self.get_data, url)
+                self._data =  await self.hass.async_add_executor_job(self.get_data, url)
         except (
             ClientConnectorError
         ) as error:
@@ -208,7 +221,7 @@ class ColorfulcloudsDataUpdateCoordinator(DataUpdateCoordinator):
             if resdatalifeindex.get("result"):
                 lifeindexdata = resdatalifeindex.get("result")
             else:        
-                lifeindexdata = resdata.get("result")['daily']['life_index']
+                lifeindexdata = self._data.get("result")['daily']['life_index']
             for lifeindex in lifeindexdata:
                 if lifeindex != "meta":
                     lifeindexk = {}
@@ -233,5 +246,5 @@ class ColorfulcloudsDataUpdateCoordinator(DataUpdateCoordinator):
             self._lifeindextime = int(datetime.datetime.now().timestamp())
             
         
-        return {**resdata,"lifeindex":self._lifeindex,"location_key":self.location_key,"is_metric":self.is_metric}
+        return {**self._data,"lifeindex":self._lifeindex,"location_key":self.location_key,"is_metric":self.is_metric}
 
