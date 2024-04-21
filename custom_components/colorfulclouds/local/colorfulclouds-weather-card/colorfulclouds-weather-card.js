@@ -104,7 +104,7 @@ class WeatherCard extends LitElement {
   // 自定义默认配置
   static getStubConfig() {
 	return {entity: 'weather.wo_de_jia',
-			hour_forecast: true,
+			houer_forecast: true,
 			show_forecast: true,
 			icon: '/colorfulclouds-local/colorfulclouds-weather-card/weathericons/'
 			};
@@ -156,7 +156,7 @@ class WeatherCard extends LitElement {
 		  this._config.entity=entId;
 		}
 	  );
-	  this._config.hour_forecast = false;
+	  this._config.houer_forecast = false;
 	  this._config.show_forecast = false;
 	}
 
@@ -216,10 +216,10 @@ class WeatherCard extends LitElement {
 	var	indexstr = ''
 	var	isshowtext = 'block'
 
-	for (let [index, content] of weather.attributes.forecast_alert.content.entries()){
+	for (let [index, content] of attributes.forecast_alert.content.entries()){
 		alert_title = `${content['title']}`
 		alert_content =	`${content['description']}`
-		if (weather.attributes.forecast_alert.content.length>1){
+		if (attributes.forecast_alert.content.length>1){
 			indexstr = String(index+1) + '. '
 		}
 		
@@ -267,10 +267,10 @@ class WeatherCard extends LitElement {
 			<ul style="list-style:none;padding:0 0 0 14px;margin: 0;">
 			  <li style="font-weight:bold;"><span class="ha-icon"
 					  ><ha-icon icon="mdi:camera-timer"></ha-icon
-					></span> ${weather.attributes.forecast_minutely}</li>
+					></span> ${attributes.forecast_minutely}</li>
 			  <li><span class="ha-icon"
 					  ><ha-icon icon="mdi:clock-outline"></ha-icon
-					></span> ${weather.attributes.forecast_hourly}</li>
+					></span> ${attributes.forecast_hourly}</li>
                               ${this.unsafeHTML(htmlstr)}
 			</ul>
 		  </div>
@@ -336,8 +336,8 @@ class WeatherCard extends LitElement {
 		  `:""}
 
 		${
-		  weather.attributes.forecast &&
-		  weather.attributes.forecast.length > 0 &&
+		  attributes.forecast &&
+		  attributes.forecast.length > 0 &&
 		  this._config.show_forecast
 			? html`
 				<div class="forecast clear"  @scroll="${this._dscroll}">
@@ -367,20 +367,20 @@ class WeatherCard extends LitElement {
 						  <br />
 						  <span>${skycon2cn[daily.skycon]}</span>
 						  <br /><span class="highTemp"
-							>${daily.temperature}${
+							>${daily.native_temperature}${
 							  this.getUnit("temperature")
 							}</span
 						  >
 						  ${
-							typeof daily.templow !== 'undefined'
+							typeof daily.native_templow !== 'undefined'
 							  ? html`
 								  <br /><span class="lowTemp"
-									>${daily.templow}${
+									>${daily.native_templow}${
 									  this.getUnit("temperature")
 									}</span
 								  >
 								  <br /><span class="lowTemp"
-									>${Math.round(daily.precipitation*100)/100}${
+									>${Math.round(daily.native_precipitation*100)/100}${
 									  this.getUnit("precipitation")
 									}</span
 								  >
@@ -396,7 +396,7 @@ class WeatherCard extends LitElement {
 		${  
 		  attributes.hourly_temperature &&
 		  attributes.hourly_temperature.length > 0 &&
-		  this._config.hour_forecast
+		  this._config.houer_forecast
 			? html`
 				<div class="forecast clear"  @scroll="${this._hscroll}">
 				  ${
@@ -942,7 +942,7 @@ export class WeatherEditor extends LitElement {
 		  <ha-switch id="df" ?checked=${this.config.show_forecast} value="normal" name="style_mode" .configValue="${"show_forecast"}" @change="${this._valueChanged}"></ha-switch>
 	  </ha-formfield>
 	  <ha-formfield label="小时预报">
-		  <ha-switch id="hf" ?checked=${this.config.hour_forecast} value="normal" name="style_mode" .configValue="${"hour_forecast"}" @change="${this._valueChanged}"></ha-switch>
+		  <ha-switch id="hf" ?checked=${this.config.houer_forecast} value="normal" name="style_mode" .configValue="${"houer_forecast"}" @change="${this._valueChanged}"></ha-switch>
 	  </ha-formfield>
 	</div>
 	<datalist id="entitieslist">
@@ -1013,3 +1013,4 @@ window.customCards.push({
   preview: true, // Optional - defaults to false
   description: "彩云天气卡片" // Optional
 });
+

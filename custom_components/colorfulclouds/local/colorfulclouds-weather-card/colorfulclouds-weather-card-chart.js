@@ -14895,7 +14895,7 @@
     }
 
     drawChart({config, language, weather, forecastItems} = this) {
-      if (!weather || !weather.attributes || !weather.attributes.daily_forecast) {
+      if (!weather || !weather.attributes || !weather.attributes.forecast) {
         return [];
       }
       if (this.forecastChart) {
@@ -14908,7 +14908,7 @@
       var tempUnit = this._hass.config.unit_system.temperature;
       var lengthUnit = this._hass.config.unit_system.length;
       var precipUnit = lengthUnit === 'km' ? this.ll('units')['mm'] : this.ll('units')['in'];
-      var forecast = weather.attributes.daily_forecast.slice(0, forecastItems);
+      var forecast = weather.attributes.forecast.slice(0, forecastItems);
 	  console.log(forecast)
       if ((new Date(forecast[1].datetime) - new Date(forecast[0].datetime)) < 864e5)
         var mode = 'hourly';
@@ -15353,10 +15353,10 @@
 	
 
     updateChart({weather, forecastItems, forecastChart} = this) {
-      if (!weather || !weather.attributes || !weather.attributes.daily_forecast) {
+      if (!weather || !weather.attributes || !weather.attributes.forecast) {
         return [];
       }
-      var forecast = weather.attributes.daily_forecast.slice(0, forecastItems);
+      var forecast = weather.attributes.forecast.slice(0, forecastItems);
       var i;
       var dateTime = [];
       var tempHigh = [];
@@ -15490,7 +15490,7 @@
 		// }	
 	
 	
-      if (!weather || !weather.attributes || !weather.attributes.daily_forecast) {
+      if (!weather || !weather.attributes || !weather.attributes.forecast) {
         return p`
         <style>
           .card {
@@ -15507,7 +15507,7 @@
         </ha-card>
       `;
       }
-      const forecast = weather.attributes.daily_forecast.slice(0, forecastItems);
+      const forecast = weather.attributes.forecast.slice(0, forecastItems);
 	  const hourly_forecast = weather.attributes.hourly_forecast ? weather.attributes.hourly_forecast.slice(0, forecastItems) : "";
 
 	//console.log(hourly_forecast);
