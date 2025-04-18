@@ -104,8 +104,8 @@ class WeatherCard extends LitElement {
   // 自定义默认配置
   static getStubConfig() {
 	return {entity: 'weather.wo_de_jia',
-			houer_forecast: true,
-			show_forecast: true,
+			hourly_forecast: true,
+			daily_forecast: true,
 			icon: '/colorfulclouds-local/colorfulclouds-weather-card/weathericons/'
 			};
   }
@@ -156,8 +156,8 @@ class WeatherCard extends LitElement {
 		  this._config.entity=entId;
 		}
 	  );
-	  this._config.houer_forecast = false;
-	  this._config.show_forecast = false;
+	  this._config.hourly_forecast = false;
+	  this._config.daily_forecast = false;
 	}
 
 	let stateObj = this.hass.states[this._config.entity];
@@ -185,21 +185,21 @@ class WeatherCard extends LitElement {
 
 	if(last_updated!==this._last_updated){
 
-	  this.tempMAX = attributes.hourly_temperature[0].value
-	  this.tempMIN = attributes.hourly_temperature[0].value
+	  this.tempMAX = attributes.hourly_forecast[0].native_temperature
+	  this.tempMIN = attributes.hourly_forecast[0].native_temperature
 
-	  attributes.hourly_temperature.forEach((item,index)=> {
-		this.tempMAX = this.tempMAX > item.value? this.tempMAX : item.value;
+	  attributes.hourly_forecast.forEach(item => {
+		this.tempMAX = this.tempMAX > item.native_temperature? this.tempMAX : item.native_temperature;
 	  });
-	  attributes.hourly_temperature.forEach((item,index)=> {
-		this.tempMIN = this.tempMIN < item.value? this.tempMIN : item.value;
+	  attributes.hourly_forecast.forEach(item => {
+		this.tempMIN = this.tempMIN < item.native_temperature? this.tempMIN : item.native_temperature;
 	  });
 
-	  attributes.hourly_temperature.map(
+	  attributes.hourly_forecast.map(
 					  
-		(daily,i) => this.tempCOLOR.push(Math.round(255*((attributes.hourly_temperature[i].value-this.tempMIN)/(this.tempMAX-this.tempMIN)))+","
-										+Math.round(66+150*(1-((attributes.hourly_temperature[i].value-this.tempMIN)/(this.tempMAX-this.tempMIN))))+","
-										+Math.round(255*(1-((attributes.hourly_temperature[i].value-this.tempMIN)/(this.tempMAX-this.tempMIN)))))
+		(hourlyItem,i) => this.tempCOLOR.push(Math.round(255*((hourlyItem.native_temperaturet-this.tempMIN)/(this.tempMAX-this.tempMIN)))+","
+										+Math.round(66+150*(1-((hourlyItem.native_temperaturet-this.tempMIN)/(this.tempMAX-this.tempMIN))))+","
+										+Math.round(255*(1-((hourlyItem.native_temperaturet-this.tempMIN)/(this.tempMAX-this.tempMIN)))))
 	  );
 		
 	  this._last_updated = last_updated;
@@ -211,7 +211,7 @@ class WeatherCard extends LitElement {
 	const next_setting = new Date(this.hass.states["sun.sun"].attributes.next_setting);  
 
 	var	alert_title = ''
-	var	alert_content = ''
+	var	alert_content = ''	
 	var	htmlstr =''
 	var	indexstr = ''
 	var	isshowtext = 'block'
@@ -225,7 +225,7 @@ class WeatherCard extends LitElement {
 		
 		htmlstr += '<li style=\"font-weight:bold; color:red;\"><span class=\"ha-icon\"><ha-icon icon=\"mdi:timer-alert-outline\"></ha-icon></span> '+ indexstr +alert_title+'</li><li style=\"font-weight:nomal; color:red; display: '+isshowtext+'\"}\"><span class=\"ha-icon\"><ha-icon icon=\"mdi:message-alert-outline\"></ha-icon></span> '+alert_content+'</li>'
 		}
-					
+
 	
 	
 	return html`
@@ -260,7 +260,7 @@ class WeatherCard extends LitElement {
 			</div>
 		  </div>
 		</div>
-		${this._config.show_forecast
+		${this._config.daily_forecast
 		  ?html`
 		<div>
 		  <div>
@@ -271,7 +271,7 @@ class WeatherCard extends LitElement {
 			  <li><span class="ha-icon"
 					  ><ha-icon icon="mdi:clock-outline"></ha-icon
 					></span> ${attributes.forecast_hourly}</li>
-                              ${this.unsafeHTML(htmlstr)}
+					  ${this.unsafeHTML(htmlstr)}
 			</ul>
 		  </div>
 
@@ -334,24 +334,23 @@ class WeatherCard extends LitElement {
 			  </span>
 			</div>
 		  `:""}
-
 		${
-		  attributes.forecast &&
-		  attributes.forecast.length > 0 &&
-		  this._config.show_forecast
+		  attributes.daily_forecast &&
+		  attributes.daily_forecast.length > 0 &&
+		  this._config.daily_forecast
 			? html`
 				<div class="forecast clear"  @scroll="${this._dscroll}">
 				  ${
-					attributes.forecast.map(
-					  daily => html`
+					attributes.daily_forecast.map(
+					  dailyItem => html`
 						<div class="day">
 						  <span class="dayname"
 							>${
-							  this._today(daily.datetime)
+							  this._today(dailyItem.datetime)
 							}
 						  </span><br />
 						  <span class="dayname">${
-							new Date(daily.datetime).toLocaleDateString(
+							new Date(dailyItem.datetime).toLocaleDateString(
 								lang,
 								{
 								month: "2-digit",
@@ -361,26 +360,26 @@ class WeatherCard extends LitElement {
 							}</span>
 						  <br /><i
 							class="icon"
-							style="background: none, url(${iconUrl}${daily.skycon}.svg) no-repeat; background-size: contain;"
-							title="${skycon2cn[daily.skycon]}"
+							style="background: none, url(${iconUrl}${dailyItem.skycon}.svg) no-repeat; background-size: contain;"
+							title="${skycon2cn[dailyItem.skycon]}"
 						  ></i>
 						  <br />
-						  <span>${skycon2cn[daily.skycon]}</span>
+						  <span>${skycon2cn[dailyItem.skycon]}</span>
 						  <br /><span class="highTemp"
-							>${daily.native_temperature}${
+							>${dailyItem.native_temperature}${
 							  this.getUnit("temperature")
 							}</span
 						  >
 						  ${
-							typeof daily.native_templow !== 'undefined'
+							typeof dailyItem.native_templow !== 'undefined'
 							  ? html`
 								  <br /><span class="lowTemp"
-									>${daily.native_templow}${
+									>${dailyItem.native_templow}${
 									  this.getUnit("temperature")
 									}</span
 								  >
 								  <br /><span class="lowTemp"
-									>${Math.round(daily.native_precipitation*100)/100}${
+									>${Math.round(dailyItem.native_precipitation*100)/100}${
 									  this.getUnit("precipitation")
 									}</span
 								  >
@@ -394,20 +393,20 @@ class WeatherCard extends LitElement {
 				</div>
 			  `:""}
 		${  
-		  attributes.hourly_temperature &&
-		  attributes.hourly_temperature.length > 0 &&
-		  this._config.houer_forecast
+		  attributes.hourly_forecast &&
+		  attributes.hourly_forecast.length > 0 &&
+		  this._config.hourly_forecast
 			? html`
 				<div class="forecast clear"  @scroll="${this._hscroll}">
 				  ${
-					attributes.hourly_temperature.map(
+					attributes.hourly_forecast.map(
 					  
-					  (daily,i) => html`
-						<div class="hourly${i>attributes.hourly_temperature.length-5?" last5":""} d${
-						  new Date(attributes.hourly_temperature[i].datetime).toLocaleTimeString(
+					  (hourlyItem,i) => html`
+						<div class="hourly${i>attributes.hourly_forecast.length-5?" last5":""} d${
+						  new Date(attributes.hourly_forecast[i].datetime).toLocaleTimeString(
 							'en-US',{hour: "numeric",hour12: false})}">
-							<span class="dayname ${new Date(attributes.hourly_temperature[i].datetime).getHours()==12?"show":""}">${
-							  new Date(attributes.hourly_temperature[i].datetime).toLocaleTimeString(
+							<span class="dayname ${new Date(attributes.hourly_forecast[i].datetime).getHours()==12?"show":""}">${
+							  new Date(attributes.hourly_forecast[i].datetime).toLocaleTimeString(
 								  lang,
 								  {
 								  month: '2-digit',
@@ -417,19 +416,19 @@ class WeatherCard extends LitElement {
 								  }
 							  )
 							  }</span>
-							<i class="icon" style="background: none${i>0 && attributes.hourly_skycon[i].value==attributes.hourly_skycon[i-1].value?"":", url("+iconUrl+attributes.hourly_skycon[i].value+".svg) no-repeat"}; background-size: contain;" title="${skycon2cn[attributes.hourly_skycon[i].value]}"></i>
+							<i class="icon" style="background: none${i>0 && attributes.hourly_forecast[i].skycon==attributes.hourly_forecast[i-1].skycon?"":", url("+iconUrl+attributes.hourly_forecast[i].skycon+".svg) no-repeat"}; background-size: contain;" title="${skycon2cn[attributes.hourly_forecast[i].skycon[i]]}"></i>
 							<br />
 							<span class="dayname">.</span>
-							<span style="border-top-color: rgb(${this.tempCOLOR[i]});border-top-width:${(attributes.hourly_temperature[i].value-this.tempMIN)/(this.tempMAX-this.tempMIN)*7+3}px" class="dtemp">.</span>
-							<span style="border-top-color: hsla(220, 100%, ${attributes.hourly_cloudrate[i].value*50+50}%, 1);" class="cloudrate">.</span>
-							<span style="border-top-color: hsla(195, 100%, ${((4.8-attributes.hourly_precipitation[i].value)*(50/4.8))+50}%, 1);" class="precipitation">.</span>
+							<span style="border-top-color: rgb(${this.tempCOLOR[i]});border-top-width:${(attributes.hourly_forecast[i].skycon-this.tempMIN)/(this.tempMAX-this.tempMIN)*7+3}px" class="dtemp">.</span>
+							<span style="border-top-color: hsla(220, 100%, ${attributes.hourly_forecast[i].cloudrate*50+50}%, 1);" class="cloudrate">.</span>
+							<span style="border-top-color: hsla(195, 100%, ${((4.8-attributes.hourly_forecast[i].native_precipitation)*(50/4.8))+50}%, 1);" class="precipitation">.</span>
 						</div>
 					  `
 					)
 				  }
 				  <div class="show hourly showdata">
 					  <span class="dayname">${
-						new Date(attributes.hourly_temperature[showdata].datetime).toLocaleTimeString(
+						new Date(attributes.hourly_forecast[showdata].datetime).toLocaleTimeString(
 							lang,
 							{
 							month: '2-digit',
@@ -440,10 +439,10 @@ class WeatherCard extends LitElement {
 						)
 						}</span>
 					  <span class="icon"></span>
-					  <span class="dayname">${skycon2cn[attributes.hourly_skycon[showdata].value]}</span>
-					  <span class="dtemp">${attributes.hourly_temperature[showdata].value}${this.getUnit("temperature")}</span>
-					  <span class="cloudrate">${attributes.hourly_cloudrate[showdata].value}</span>
-					  <span class="precipitation">${Math.round(attributes.hourly_precipitation[showdata].value*100)/100}${this.getUnit("precipitation")}</span>
+					  <span class="dayname">${skycon2cn[attributes.hourly_forecast[showdata].skycon]}</span>
+					  <span class="dtemp">${attributes.hourly_forecast[showdata].native_temperature}${this.getUnit("temperature")}</span>
+					  <span class="cloudrate">${attributes.hourly_forecast[showdata].cloudrate}</span>
+					  <span class="precipitation">${Math.round(attributes.hourly_forecast[showdata].native_precipitation*100)/100}${this.getUnit("precipitation")}</span>
 				  </div>
 				</div>
 			  `
@@ -582,12 +581,12 @@ class WeatherCard extends LitElement {
 		styles["--primary-color"] || meta.getAttribute("default-content");
 	  meta.setAttribute("content", themeColor);
 	}
-  }
-  unsafeHTML(htmlString) {
-   const template = document.createElement('template');
-   template.innerHTML = htmlString;
-   return template.content;
-  }
+}
+unsafeHTML(htmlString) {
+ const template = document.createElement('template');
+ template.innerHTML = htmlString;
+ return template.content;
+}
   renderStyle() {
 	return html`
 	  <style>
@@ -865,7 +864,7 @@ export class WeatherEditor extends LitElement {
 	const preloadCard = type => window.loadCardHelpers()
 	  .then(({ createCardElement }) => createCardElement({type}))
 	preloadCard("weather-forecast");
-	customElements.get("hui-weather-forecast-card").getConfigElement()
+	customElements.get("colorfulclouds_weather-card").getConfigElement()
 	this.config = config;
   }
 
@@ -939,10 +938,10 @@ export class WeatherEditor extends LitElement {
 		  >
 	  </paper-input-container>
 	  <ha-formfield label="详细预报">
-		  <ha-switch id="df" ?checked=${this.config.show_forecast} value="normal" name="style_mode" .configValue="${"show_forecast"}" @change="${this._valueChanged}"></ha-switch>
+		  <ha-switch id="df" ?checked=${this.config.daily_forecast} value="normal" name="style_mode" .configValue="${"daily_forecast"}" @change="${this._valueChanged}"></ha-switch>
 	  </ha-formfield>
 	  <ha-formfield label="小时预报">
-		  <ha-switch id="hf" ?checked=${this.config.houer_forecast} value="normal" name="style_mode" .configValue="${"houer_forecast"}" @change="${this._valueChanged}"></ha-switch>
+		  <ha-switch id="hf" ?checked=${this.config.hourly_forecast} value="normal" name="style_mode" .configValue="${"hourly_forecast"}" @change="${this._valueChanged}"></ha-switch>
 	  </ha-formfield>
 	</div>
 	<datalist id="entitieslist">

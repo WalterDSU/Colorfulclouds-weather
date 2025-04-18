@@ -186,7 +186,7 @@ class MoreInfoWeather extends LitElement {
 	windBearingToText(degree) {
 	  const degreenum = parseInt(degree);
 	  if (isFinite(degreenum)) {
-		return this.cardinalDirections[(((degreenum + 11.25) / 22.5) | 0) % 16];
+		return locale['zh-Hans'].cardinalDirections[(((degreenum + 11.25) / 22.5) | 0) % 16];
 	  }
 	  return degree;
 	}
@@ -208,6 +208,7 @@ class MoreInfoWeather extends LitElement {
 	_showValue(item) {
 	  return typeof item !== "undefined" && item !== null;
 	}
+	
 	
 	render() {
 		return html`
@@ -292,7 +293,7 @@ class MoreInfoWeather extends LitElement {
 				风速
 			  </div>
 			  <div>
-				${this.stateObj.attributes.wind_speed} ${this.stateObj.attributes.wind_speed_unit}
+				${this.stateObj.attributes.wind_speed} ${this.stateObj.attributes.wind_speed_unit} (${this.windBearingToText(this.stateObj.attributes.wind_bearing)})
 			  </div>
 			</div>
 		  ` : ''}
@@ -329,21 +330,40 @@ class MoreInfoWeather extends LitElement {
 				`,
 			  )}	
 		  ` : ''}
-		  ${this.stateObj.attributes.forecast ? html`
+		  ${this.stateObj.attributes.daily_forecast ? html`
 			<div class="section">天气预报:</div>
-			${this.stateObj.attributes.forecast.map(
+			${this.stateObj.attributes.daily_forecast.map(
 				(item) => html`
 				  <div class="flex">
 					${this._showValue(item.condition)
 					  ? html`<ha-icon icon="${this.getWeatherIcon(item.condition)}"></ha-icon>`
 					  : null}
-					${!this._showValue(item.templow)
+					${!this._showValue(item.native_templow)
 					  ? html`<div class="main">${this.computeDateTime(item.datetime)}</div>`
 					  : html`
 						  <div class="main">${this.computeDate(item.datetime)}</div>
-						  <div class="templow">${item.templow} ${this.stateObj.attributes.temperature_unit}</div>
+						  <div class="templow">${item.native_templow} ${this.stateObj.attributes.temperature_unit}</div>
 						`}
-					<div class="temp">${item.temperature} ${this.stateObj.attributes.temperature_unit}</div>
+					<div class="temp">${item.native_temperature} ${this.stateObj.attributes.temperature_unit}</div>
+				  </div>
+				`,
+			  )}
+		  ` : ''}
+		  ${this.stateObj.attributes.hourly_forecast ? html`
+			<div class="section">小时天气预报:</div>
+			${this.stateObj.attributes.hourly_forecast.map(
+				(item) => html`
+				  <div class="flex">
+					${this._showValue(item.condition)
+					  ? html`<ha-icon icon="${this.getWeatherIcon(item.condition)}"></ha-icon>`
+					  : null}
+					${!this._showValue(item.native_templow)
+					  ? html`<div class="main">${this.computeDateTime(item.datetime)}</div>`
+					  : html`
+						  <div class="main">${this.computeDate(item.datetime)}</div>
+						  <div class="templow">${item.native_templow} ${this.stateObj.attributes.temperature_unit}</div>
+						`}
+					<div class="temp">${item.native_temperature} ${this.stateObj.attributes.temperature_unit}</div>
 				  </div>
 				`,
 			  )}
