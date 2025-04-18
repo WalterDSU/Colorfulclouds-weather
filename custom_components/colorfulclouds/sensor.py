@@ -5,7 +5,6 @@ from homeassistant.const import (
     ATTR_ATTRIBUTION,
     ATTR_DEVICE_CLASS,
     CONF_NAME,
-    DEVICE_CLASS_TEMPERATURE,
 )
 import time
 
@@ -112,23 +111,6 @@ class ColorfulcloudsSensor(Entity):
     @property
     def state(self):
         """Return the state."""
-        # if self.forecast_day is not None:
-        #     if (
-        #         FORECAST_SENSOR_TYPES[self.kind][ATTR_DEVICE_CLASS]
-        #         == DEVICE_CLASS_TEMPERATURE
-        #     ):
-        #         return self.coordinator.data["result"][ATTR_FORECAST][self.forecast_day][
-        #             self.kind
-        #         ]["Value"]
-        #     if self.kind in ["WindGustDay", "WindGustNight"]:
-        #         return self.coordinator.data["result"][ATTR_FORECAST][self.forecast_day][
-        #             self.kind
-        #         ]["Speed"]["Value"]
-        #     if self.kind in ["Grass", "Mold", "Ragweed", "Tree", "UVIndex", "Ozone"]:
-        #         return self.coordinator.data["result"][ATTR_FORECAST][self.forecast_day][
-        #             self.kind
-        #         ]["Value"]
-        #     return self.coordinator.data["result"][ATTR_FORECAST][self.forecast_day][self.kind]
         if self.kind == "apparent_temperature":
             return self.coordinator.data["result"]["realtime"][self.kind]
         if self.kind == "pressure":
@@ -155,6 +137,24 @@ class ColorfulcloudsSensor(Entity):
             return datetime.fromtimestamp(self.coordinator.data["server_time"]) 
         if self.kind == "pm25":
             return self.coordinator.data["result"]["realtime"]["air_quality"]["pm25"]
+        if self.kind == "pm10": 
+            return self.coordinator.data["result"]["realtime"]["air_quality"]["pm10"]
+        if self.kind == "so2":      
+            return self.coordinator.data["result"]["realtime"]["air_quality"]["so2"]
+        if self.kind == "no2":                              
+            return self.coordinator.data["result"]["realtime"]["air_quality"]["no2"]
+        if self.kind == "co":
+            return self.coordinator.data["result"]["realtime"]["air_quality"]["co"]
+        if self.kind == "o3":
+            return self.coordinator.data["result"]["realtime"]["air_quality"]["o3"]
+        if self.kind == "aqi":
+            return self.coordinator.data["result"]["realtime"]["air_quality"]["aqi"]['chn']
+        if self.kind == "aqi_description":
+            return self.coordinator.data["result"]["realtime"]["air_quality"]['description']['chn']
+        if self.kind == "aqi_usa":
+            return self.coordinator.data["result"]["realtime"]["air_quality"]['aqi']['usa']
+        if self.kind == "aqi_usa_description": 
+            return self.coordinator.data["result"]["realtime"]["air_quality"]['description']['usa']                                                                  
 
     @property
     def icon(self):

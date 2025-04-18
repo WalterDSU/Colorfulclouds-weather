@@ -15,6 +15,7 @@ from .const import (
     CONF_DAILYSTEPS,
     CONF_ALERT,
     CONF_LIFEINDEX,
+    CONF_CUSTOM_UI,
     CONF_STARTTIME,
     CONF_UPDATE_INTERVAL,
     )
@@ -35,7 +36,8 @@ class ColorfulcloudslowHandler(config_entries.ConfigFlow, domain=DOMAIN):
         self._errors = {}
     
     # @asyncio.coroutine
-    def get_data(self, url):
+    def get_data(self, url, api_key):
+        #json_text = requests.get(url).content
         json_text = requests.get(url).content
         resdata = json.loads(json_text)
         return resdata
@@ -49,8 +51,8 @@ class ColorfulcloudslowHandler(config_entries.ConfigFlow, domain=DOMAIN):
                 return self.async_abort(reason="already_configured")
 
             # If it is not, continue with communication test
-            url = str.format("https://api.caiyunapp.com/{}/{}/{},{}/daily.json", user_input["api_version"], user_input["api_key"], user_input["longitude"], user_input["latitude"])
-            redata = await self.hass.async_add_executor_job(self.get_data, url)
+            url = str.format("https://api.caiyunapp.com/{}/{}/{},{}/weather.json?dailysteps=7&hourlysteps=24&alert=true", user_input["api_version"], user_input["api_key"], user_input["longitude"], user_input["latitude"])
+            redata = await self.hass.async_add_executor_job(self.get_data, url, user_input["api_key"])
             status = redata['status']
             if status == "ok":
                 await self.async_set_unique_id(f"{user_input['longitude']}-{user_input['latitude']}".replace(".","_"))
@@ -122,8 +124,8 @@ class ColorfulcloudsOptionsFlow(config_entries.OptionsFlow):
                     ): vol.All(vol.Coerce(int), vol.Range(min=5, max=1440)),
                     vol.Optional(
                         CONF_DAILYSTEPS,
-                        default=self.config_entry.options.get(CONF_DAILYSTEPS, 5),
-                    ): vol.All(vol.Coerce(int), vol.Range(min=5, max=15)),
+                        default=self.config_entry.options.get(CONF_DAILYSTEPS, 7),
+                    ): vol.All(vol.Coerce(int), vol.Range(min=5, max=16)),
                     vol.Optional(
                         CONF_HOURLYSTEPS,
                         default=self.config_entry.options.get(CONF_HOURLYSTEPS, 24),
@@ -139,6 +141,10 @@ class ColorfulcloudsOptionsFlow(config_entries.OptionsFlow):
                     vol.Optional(
                         CONF_LIFEINDEX,
                         default=self.config_entry.options.get(CONF_LIFEINDEX, False),
+                    ): bool,
+                    vol.Optional(
+                        CONF_CUSTOM_UI,
+                        default=self.config_entry.options.get(CONF_CUSTOM_UI, False),
                     ): bool
                 }
             ),
